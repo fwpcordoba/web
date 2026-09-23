@@ -93,6 +93,26 @@
   .nstat strong { display: block; font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; color: #D9540F; }
   .nstat span { display: block; margin-top: 2px; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; color: #6B6B6B; }
 
+
+  /* ---- Comparación: productos ---- */
+  .cmp-products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
+  .cmp-prod { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 16px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .cmp-prod.us { border: 2px solid #D9540F; }
+  .cmp-img { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; background: #F4F4F2; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .cmp-img img { width: 100%; height: 100%; object-fit: contain; }
+  .cmp-prod b { font-size: 14px; line-height: 1.25; }
+  .cmp-prod span { font-size: 12px; color: #6B6B6B; line-height: 1.3; }
+  .tablewrap .extra-table { table-layout: fixed; }
+  .tablewrap .extra-table th:first-child, .tablewrap .extra-table td:first-child { width: 30%; }
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; }
+  @media (max-width: 640px) {
+    .cmp-products { gap: 8px; }
+    .cmp-prod { padding: 10px 6px; }
+    .cmp-prod b { font-size: 12.5px; }
+    .cmp-prod span { font-size: 11px; }
+    .extra-table th, .extra-table td { padding: 10px 7px; font-size: 12.5px; overflow-wrap: break-word; }
+  }
+
   /* ---- Certificaciones ---- */
   .cert-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center; }
   .cert-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -199,8 +219,50 @@
   </div>
 </div>
 
-<!-- BENEFICIOS Y NUTRICION -->
+<!-- COMPARACION -->
 <div class="sec bg-soft">
+  <div class="sec-head">
+    <span class="eyebrow">Comparado con otros energizantes</span>
+    <h2>La energía sin el azúcar</h2>
+    <p class="sec-sub">Azúcar por porción de E-BOOST frente a las latas originales de los energizantes más vendidos, según la información publicada por cada marca (verificado en septiembre de 2026).</p>
+  </div>
+  <div class="cmp-products">
+    <div class="cmp-prod us"><div class="cmp-img"><img src="../assets/26272a9da41ff2cb346181595abdaf95.jpg" alt="E-BOOST"></div><b>E-BOOST</b><span>FWP · polvo, sabor mandarina</span></div>
+    <div class="cmp-prod"><div class="cmp-img"><svg viewBox="0 0 80 120" width="70" height="105" aria-hidden="true"><rect x="18" y="14" width="44" height="96" rx="8" fill="#D6D6D2"/><rect x="22" y="8" width="36" height="10" rx="4" fill="#BDBDB8"/><rect x="18" y="48" width="44" height="26" fill="#BDBDB8"/></svg></div><b>Red Bull</b><span>Lata original 250 ml</span></div>
+    <div class="cmp-prod"><div class="cmp-img"><svg viewBox="0 0 80 120" width="70" height="105" aria-hidden="true"><rect x="18" y="14" width="44" height="96" rx="8" fill="#D6D6D2"/><rect x="22" y="8" width="36" height="10" rx="4" fill="#BDBDB8"/><rect x="18" y="48" width="44" height="26" fill="#BDBDB8"/></svg></div><b>Monster Energy</b><span>Lata original 473 ml</span></div>
+  </div>
+
+  <div class="compare-bars">
+    <p style="margin: 0 0 4px; font-size: 14px; font-weight: 700;">Azúcar por porción</p>
+    <div class="bar-row">
+      <span class="bar-label">E-BOOST</span>
+      <div class="bar-track"><div class="bar-fill us" style="width: 0%;"></div></div>
+      <span class="bar-val">0 g</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Red Bull</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 52%;"></div></div>
+      <span class="bar-val">27 g</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Monster</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
+      <span class="bar-val">~52 g</span>
+    </div>
+  </div>
+  <p class="compare-note">Red Bull: 27 g por lata de 250 ml. Monster: 11 g cada 100 ml (≈52 g por lata de 473 ml). Ambas marcas tienen versiones sin azúcar; acá comparamos las originales.</p>
+
+  <div class="tablewrap"><table class="extra-table">
+    <tr><th>¿Qué trae?</th><th>E-BOOST</th><th>Red Bull</th><th>Monster</th></tr>
+    <tr><td>Azúcar por porción</td><td>0 g</td><td>27 g</td><td>~52 g</td></tr>
+    <tr><td>Fuente de energía</td><td>Yerba mate, guaraná y té negro</td><td>Cafeína agregada (80 mg)</td><td>Cafeína agregada</td></tr>
+    <tr><td>Aminoácidos y fibra</td><td>Mix de aminoácidos y fibra de bambú</td><td>Taurina</td><td>Taurina y L-carnitina</td></tr>
+    <tr><td>Formato</td><td>Polvo, 28 porciones</td><td>Lata individual</td><td>Lata individual</td></tr>
+  </table></div>
+</div>
+
+<!-- BENEFICIOS Y NUTRICION -->
+<div class="sec">
   <div class="sec-head">
     <span class="eyebrow">Beneficios</span>
     <h2>Lo que E-BOOST hace por vos</h2>
@@ -229,7 +291,7 @@
 </div>
 
 <!-- SIN / CON -->
-<div class="sec">
+<div class="sec bg-soft">
   <div class="sec-head">
     <span class="eyebrow">La diferencia real</span>
     <h2>Lo que cambia con E-BOOST</h2>
@@ -255,7 +317,7 @@
 </div>
 
 <!-- RESEÑAS -->
-<div class="sec bg-soft">
+<div class="sec">
   <div class="sec-head">
     <span class="eyebrow">Primeras reseñas</span>
     <h2>Lo que dicen quienes ya lo probaron</h2>

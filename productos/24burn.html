@@ -93,6 +93,26 @@
   .nstat strong { display: block; font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; color: #5E8F23; }
   .nstat span { display: block; margin-top: 2px; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; color: #6B6B6B; }
 
+
+  /* ---- Comparación: productos ---- */
+  .cmp-products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
+  .cmp-prod { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 16px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .cmp-prod.us { border: 2px solid #5E8F23; }
+  .cmp-img { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; background: #F4F4F2; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .cmp-img img { width: 100%; height: 100%; object-fit: contain; }
+  .cmp-prod b { font-size: 14px; line-height: 1.25; }
+  .cmp-prod span { font-size: 12px; color: #6B6B6B; line-height: 1.3; }
+  .tablewrap .extra-table { table-layout: fixed; }
+  .tablewrap .extra-table th:first-child, .tablewrap .extra-table td:first-child { width: 30%; }
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; }
+  @media (max-width: 640px) {
+    .cmp-products { gap: 8px; }
+    .cmp-prod { padding: 10px 6px; }
+    .cmp-prod b { font-size: 12.5px; }
+    .cmp-prod span { font-size: 11px; }
+    .extra-table th, .extra-table td { padding: 10px 7px; font-size: 12.5px; overflow-wrap: break-word; }
+  }
+
   /* ---- Certificaciones ---- */
   .cert-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center; }
   .cert-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -197,8 +217,50 @@
   </div>
 </div>
 
-<!-- BENEFICIOS Y NUTRICION -->
+<!-- COMPARACION -->
 <div class="sec bg-soft">
+  <div class="sec-head">
+    <span class="eyebrow">Comparado con otras opciones</span>
+    <h2>Tres activos en un solo vaso</h2>
+    <p class="sec-sub">Comparamos 24BURN con dos productos muy vendidos en Argentina para energía y metabolismo, según la información publicada por cada marca (verificado en septiembre de 2026).</p>
+  </div>
+  <div class="cmp-products">
+    <div class="cmp-prod us"><div class="cmp-img"><img src="../assets/e81847b64b62c242e4a22e41c218e28f.jpg" alt="24BURN"></div><b>24BURN</b><span>FWP · polvo, sabor té limón</span></div>
+    <div class="cmp-prod"><div class="cmp-img"><svg viewBox="0 0 80 120" width="70" height="105" aria-hidden="true"><rect x="12" y="30" width="56" height="80" rx="10" fill="#D6D6D2"/><rect x="16" y="16" width="48" height="18" rx="4" fill="#BDBDB8"/><rect x="12" y="58" width="56" height="26" fill="#BDBDB8"/></svg></div><b>Té Concentrado de Hierbas</b><span>Herbalife · polvo</span></div>
+    <div class="cmp-prod"><div class="cmp-img"><svg viewBox="0 0 80 120" width="70" height="105" aria-hidden="true"><rect x="22" y="40" width="36" height="72" rx="8" fill="#D6D6D2"/><path d="M30 24h20v18H30z" fill="#D6D6D2"/><rect x="28" y="10" width="24" height="16" rx="3" fill="#BDBDB8"/><rect x="22" y="64" width="36" height="24" fill="#BDBDB8"/></svg></div><b>L-Carnitine Líquida</b><span>Star Nutrition · líquido</span></div>
+  </div>
+
+  <div class="compare-bars">
+    <p style="margin: 0 0 4px; font-size: 14px; font-weight: 700;">Activos principales en una sola toma (té verde, panax ginseng y L-carnitina)</p>
+    <div class="bar-row">
+      <span class="bar-label">24BURN</span>
+      <div class="bar-track"><div class="bar-fill us" style="width: 100%;"></div></div>
+      <span class="bar-val">3 de 3</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Té Herbalife</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 33%;"></div></div>
+      <span class="bar-val">1 de 3</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">L-Carnitine Star</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 33%;"></div></div>
+      <span class="bar-val">1 de 3</span>
+    </div>
+  </div>
+  <p class="compare-note">Fuentes: sitios oficiales y tiendas oficiales de cada marca. Los resultados de cualquier suplemento varían según la persona.</p>
+
+  <div class="tablewrap"><table class="extra-table">
+    <tr><th>¿Qué trae?</th><th>24BURN</th><th>Té Herbalife</th><th>L-Carnitine Star</th></tr>
+    <tr><td>Extracto de té verde</td><td>✓</td><td>✓</td><td>✕</td></tr>
+    <tr><td>Panax ginseng</td><td>✓</td><td>✕</td><td>✕</td></tr>
+    <tr><td>L-carnitina</td><td>✓</td><td>✕</td><td>✓</td></tr>
+    <tr><td>Formato</td><td>Polvo, 1 vez al día</td><td>Polvo</td><td>Líquido, 2 tomas al día</td></tr>
+  </table></div>
+</div>
+
+<!-- BENEFICIOS Y NUTRICION -->
+<div class="sec">
   <div class="sec-head">
     <span class="eyebrow">Beneficios</span>
     <h2>Lo que 24BURN hace por vos</h2>
@@ -228,7 +290,7 @@
 </div>
 
 <!-- SIN / CON -->
-<div class="sec">
+<div class="sec bg-soft">
   <div class="sec-head">
     <span class="eyebrow">La diferencia real</span>
     <h2>Lo que cambia con 24BURN</h2>
@@ -254,7 +316,7 @@
 </div>
 
 <!-- RESEÑAS -->
-<div class="sec bg-soft">
+<div class="sec">
   <div class="sec-head">
     <span class="eyebrow">Primeras reseñas</span>
     <h2>Lo que dicen quienes ya lo probaron</h2>
