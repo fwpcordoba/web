@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RENÖVA+ — Colágeno, resveratrol y CoQ10 | FWP Córdoba</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  html, body { margin: 0; overflow-x: hidden; }
+  body { font-family: 'Work Sans', sans-serif; background: #FAF7F2; color: #1A1A1A; }
+  h1, h2, h3 { font-family: 'Fraunces', serif; margin: 0; }
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; }
+  img { max-width: 100%; display: block; }
+  .accent { color: #C2168D; }
+  .cta:hover { filter: brightness(1.08); }
+  .navlink:hover { opacity: 0.7; }
+  .optbtn { transition: border-color 0.15s ease, background 0.15s ease; }
+
+  /* ---- Barra superior ---- */
+  .topbar { background: #C2168D; color: #FFFFFF; text-align: center; padding: 9px 16px; font-size: 13px; font-weight: 600; }
+
+  /* ---- Nav ---- */
+  .navbar { position: sticky; top: 0; z-index: 30; background: rgba(250,247,242,0.95); backdrop-filter: blur(6px); border-bottom: 1px solid rgba(20,20,20,0.08); }
+  .navrow { max-width: 1080px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-sizing: border-box; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .back { font-size: 14px; font-weight: 600; color: #6B6B6B; display: flex; align-items: center; gap: 6px; }
+
+  /* ---- Hero ---- */
+  .hero { max-width: 1080px; margin: 0 auto; padding: 40px 24px 24px; display: flex; gap: 48px; flex-wrap: wrap; box-sizing: border-box; }
+  .hero-media { flex: 1 1 380px; min-width: 0; }
+  .hero-media img { width: 100%; border-radius: 20px; background: #F1E4EE; }
+  .hero-info { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge { font-size: 12px; font-weight: 700; letter-spacing: 0.03em; background: #F1E4EE; color: #C2168D; padding: 5px 12px; border-radius: 999px; }
+  .price-row { display: flex; align-items: baseline; gap: 10px; }
+  .price { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 600; }
+  .checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: #3A3A3A; }
+  .checklist svg { flex-shrink: 0; margin-top: 2px; }
+  .btnrow { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+  .btn-primary { background: #C2168D; color: #FFFFFF; padding: 16px 30px; border: 0; border-radius: 999px; font-size: 16px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; }
+  .btn-secondary { padding: 16px 20px; font-size: 15px; font-weight: 700; color: #1A1A1A; border-bottom: 2px solid #C2168D; }
+  .trust-line { font-size: 13px; color: #6B6B6B; }
+
+  /* ---- Secciones generales ---- */
+  .sec { max-width: 1080px; margin: 0 auto; padding: 56px 24px; box-sizing: border-box; }
+  .sec-head { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 36px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-size: 12.5px; font-weight: 700; color: #C2168D; }
+  .sec h2 { font-size: clamp(26px, 4vw, 34px); font-weight: 600; }
+  .sec-sub { font-size: 16px; color: #6B6B6B; max-width: 560px; margin: 0; }
+
+  /* ---- Ingredientes ---- */
+  .ing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .ing-card { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+  .ing-card b { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: #C2168D; }
+  .ing-card span { font-size: 14px; line-height: 1.5; color: #4A4A4A; }
+
+  /* ---- Comparación ---- */
+  .bg-soft { background: #F6EEF3; }
+  .compare-bars { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+  .bar-row { display: grid; grid-template-columns: 140px 1fr 60px; align-items: center; gap: 12px; }
+  .bar-label { font-size: 14px; font-weight: 600; }
+  .bar-track { background: rgba(20,20,20,0.08); border-radius: 999px; height: 16px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; background: #D9D9D6; }
+  .bar-fill.us { background: #C2168D; }
+  .bar-val { font-size: 14px; font-weight: 700; text-align: right; }
+  .compare-note { font-size: 12.5px; color: #6B6B6B; text-align: center; margin: 0 0 32px; }
+  .extra-table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid rgba(20,20,20,0.08); }
+  .extra-table th, .extra-table td { padding: 14px 16px; text-align: left; font-size: 14.5px; }
+  .extra-table th { background: #C2168D; color: #FFFFFF; font-weight: 700; }
+  .extra-table th:first-child, .extra-table td:first-child { width: 46%; }
+  .extra-table tr:nth-child(even) td { background: #FAF5F8; }
+  .extra-table td { border-top: 1px solid rgba(20,20,20,0.06); }
+
+  /* ---- Sin/Con ---- */
+  .versus { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .versus-card { border-radius: 18px; padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+  .versus-card.bad { background: #F1F1EF; }
+  .versus-card.good { background: #C2168D; color: #FFFFFF; }
+  .versus-card h3 { font-size: 20px; font-weight: 600; }
+  .versus-card.good h3 { color: #FFFFFF; }
+  .versus-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .versus-card li { font-size: 14.5px; line-height: 1.5; display: flex; gap: 10px; }
+
+  /* ---- Reseñas ---- */
+  .review-card { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 18px; padding: 24px; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  .review-placeholder { border: 2px dashed rgba(194,22,141,0.35); background: #FAF5F8; border-radius: 18px; padding: 28px; max-width: 480px; margin: 16px auto 0; text-align: center; font-size: 14px; color: #6B6B6B; }
+
+  /* ---- Certificaciones ---- */
+  .cert-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center; }
+  .cert-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .cert-item svg { color: #C2168D; }
+  .cert-item span { font-size: 13px; font-weight: 600; color: #3A3A3A; }
+
+  /* ---- Compra final ---- */
+  .buy-final { background: #141414; color: #FAF7F2; border-radius: 24px; padding: 44px 32px; text-align: center; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  .buy-final .price { color: #FAF7F2; }
+
+  /* ---- Footer ---- */
+  .footer { padding: 28px 24px; background: #141414; color: rgba(250,247,242,0.6); font-size: 13px; text-align: center; }
+
+  /* ---- Barra fija mobile ---- */
+  .stickybuy { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: #FFFFFF; border-top: 1px solid rgba(20,20,20,0.1); padding: 10px 16px; display: none; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -6px 18px rgba(20,20,20,0.08); }
+  .stickybuy .price { font-size: 20px; }
+
+  /* ---- Modal ---- */
+  .overlay { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(10,12,14,0.6); backdrop-filter: blur(3px); align-items: center; justify-content: center; padding: 14px; box-sizing: border-box; }
+  .modalcard { background: #FFFFFF; border-radius: 22px; max-width: 460px; width: 100%; max-height: 92vh; overflow-y: auto; padding: 28px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; gap: 16px; border-top: 5px solid #C2168D; }
+  .modalcard h3 { font-size: 26px; font-weight: 600; }
+
+  @media (max-width: 640px) {
+    .navrow { padding: 12px 16px; }
+    .back span.backtext { display: none; }
+    .hero { padding: 24px 16px 20px; gap: 28px; }
+    .sec { padding: 44px 16px; }
+    .btnrow .btn-primary { flex: 1 1 auto; justify-content: center; }
+    .bar-row { grid-template-columns: 96px 1fr 46px; }
+    .stickybuy { display: flex; }
+    body { padding-bottom: 70px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">Envíos a todo el país por Correo Argentino · Entrega personal en Córdoba</div>
+
+<div class="navbar">
+  <div class="navrow">
+    <a class="back" href="../index.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span class="backtext">FWP Córdoba</span>
+    </a>
+    <a class="btn-primary" style="padding:10px 20px;font-size:14px;" href="https://wa.me/5493517684192?text=Hola!%20Quiero%20consultar%20por%20REN%C3%96VA%2B">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-media">
+    <img src="../assets/b1c7caa25e9d2425e0a8b87d2cd398e9.jpg" alt="RENÖVA+, colágeno hidrolizado FWP">
+  </div>
+  <div class="hero-info">
+    <div class="badge-row">
+      <span class="badge">Formulado por médicos</span>
+      <span class="badge">Sin azúcar</span>
+    </div>
+    <h1 style="font-size: clamp(30px, 4.5vw, 42px); font-weight: 600; line-height: 1.1;">REN<span class="accent">Ö</span>VA+</h1>
+    <p style="font-size: 18px; color: #4A4A4A; margin: 0; max-width: 440px;">Tu dosis diaria de juventud: colágeno hidrolizado Peptan® con resveratrol, vitamina C y CoQ10 para piel, uñas, cabello y articulaciones.</p>
+    <div class="price-row">
+      <span class="price">$78.286</span>
+      <span style="font-size: 13px; color: #6B6B6B;">ARS · 315 g · sabor berries</span>
+    </div>
+    <ul class="checklist">
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C2168D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 11,5 g de colágeno hidrolizado por porción</li>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C2168D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 11,4 g de proteína, 0 g de azúcar</li>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C2168D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> + resveratrol, vitamina C, CoQ10, magnesio, zinc, arándano y fibra de avena</li>
+    </ul>
+    <div class="btnrow">
+      <button class="btn-primary cta" id="openBuy">Comprar RENÖVA+</button>
+      <a class="btn-secondary navlink" href="https://wa.me/5493517684192?text=Hola!%20Tengo%20una%20duda%20sobre%20REN%C3%96VA%2B">Tengo una duda</a>
+    </div>
+    <span class="trust-line">Certificación ISO 9001 / ISO 37001 · Ingredientes trazables · Envío o entrega en Córdoba</span>
+  </div>
+</div>
+
+<!-- INGREDIENTES -->
+<div class="sec">
+  <div class="sec-head">
+    <span class="eyebrow">Qué tiene adentro</span>
+    <h2>Una fórmula completa, no solo colágeno</h2>
+    <p class="sec-sub">Cada porción combina 8 ingredientes activos pensados para trabajar juntos.</p>
+  </div>
+  <div class="ing-grid">
+    <div class="ing-card"><b>Colágeno hidrolizado Peptan®</b><span>11,5 g por porción. Firmeza para la piel y soporte para las articulaciones.</span></div>
+    <div class="ing-card"><b>Resveratrol</b><span>Antioxidante que ayuda a proteger las células del desgaste diario.</span></div>
+    <div class="ing-card"><b>Vitamina C</b><span>Necesaria para que el cuerpo forme colágeno propio.</span></div>
+    <div class="ing-card"><b>CoQ10</b><span>Antioxidante asociado a la vitalidad celular.</span></div>
+    <div class="ing-card"><b>Magnesio y zinc</b><span>Minerales clave para músculos, energía y sistema inmune.</span></div>
+    <div class="ing-card"><b>Arándano y fibra de avena</b><span>Aportan antioxidantes extra y ayudan a la digestión.</span></div>
+  </div>
+</div>
+
+<!-- COMPARACION -->
+<div class="sec bg-soft">
+  <div class="sec-head">
+    <span class="eyebrow">Comparado con otras marcas</span>
+    <h2>Más colágeno, y no solo colágeno</h2>
+    <p class="sec-sub">Gramos de colágeno hidrolizado por porción, según la información publicada por cada marca en su sitio oficial (verificado en septiembre de 2026).</p>
+  </div>
+
+  <div class="compare-bars">
+    <div class="bar-row">
+      <span class="bar-label">RENÖVA+</span>
+      <div class="bar-track"><div class="bar-fill us" style="width: 100%;"></div></div>
+      <span class="bar-val">11,5 g</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Ultraflex</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 87%;"></div></div>
+      <span class="bar-val">10 g</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Colnatur</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 87%;"></div></div>
+      <span class="bar-val">~10 g</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Natier</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 67%;"></div></div>
+      <span class="bar-val">7,7 g</span>
+    </div>
+  </div>
+  <p class="compare-note">Fuentes: sitios oficiales de cada marca. Los resultados de cualquier suplemento varían según la persona.</p>
+
+  <table class="extra-table">
+    <tr><th>¿Qué trae la porción?</th><th>RENÖVA+</th><th>Colágeno común</th></tr>
+    <tr><td>Colágeno hidrolizado</td><td>11,5 g</td><td>5 a 10 g</td></tr>
+    <tr><td>Proteína total</td><td>11,4 g</td><td>No suele informarse</td></tr>
+    <tr><td>Antioxidantes (resveratrol, CoQ10)</td><td>Sí</td><td>Poco frecuente</td></tr>
+    <tr><td>Vitaminas y minerales (Vit. C, Mg, Zn)</td><td>Sí</td><td>Varía</td></tr>
+    <tr><td>Azúcar agregada</td><td>0 g</td><td>Varía</td></tr>
+    <tr><td>Certificación</td><td>ISO 9001 / ISO 37001</td><td>Varía según marca</td></tr>
+  </table>
+</div>
+
+<!-- SIN / CON -->
+<div class="sec">
+  <div class="sec-head">
+    <span class="eyebrow">La diferencia real</span>
+    <h2>Lo que cambia con RENÖVA+</h2>
+  </div>
+  <div class="versus">
+    <div class="versus-card bad">
+      <h3>Sin RENÖVA+</h3>
+      <ul>
+        <li>✕ Comprás colágeno, antioxidantes y vitaminas por separado</li>
+        <li>✕ No sabés cuánto colágeno puro estás tomando en realidad</li>
+        <li>✕ Rutinas de varios frascos, distintos horarios</li>
+      </ul>
+    </div>
+    <div class="versus-card good">
+      <h3>Con RENÖVA+</h3>
+      <ul>
+        <li>✓ Un solo pote con colágeno + antioxidantes + vitaminas</li>
+        <li>✓ 11,5 g de colágeno por porción, medible y consistente</li>
+        <li>✓ Una dosis al día, sabor berries</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- RESEÑAS -->
+<div class="sec bg-soft">
+  <div class="sec-head">
+    <span class="eyebrow">Primeras reseñas</span>
+    <h2>Lo que dicen quienes ya lo probaron</h2>
+    <p class="sec-sub">Estamos sumando reseñas reales de clientes. Si ya lo probaste, contanos tu experiencia por WhatsApp.</p>
+  </div>
+  <div class="review-placeholder">
+    [ Reseña pendiente de cargar — captura de WhatsApp del cliente ]
+  </div>
+</div>
+
+<!-- CERTIFICACIONES -->
+<div class="sec">
+  <div class="sec-head">
+    <span class="eyebrow">Respaldo real</span>
+    <h2>Calidad que se puede verificar</h2>
+  </div>
+  <div class="cert-row">
+    <div class="cert-item">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/></svg>
+      <span>ISO 9001<br>Calidad</span>
+    </div>
+    <div class="cert-item">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+      <span>ISO 37001<br>Antisoborno</span>
+    </div>
+    <div class="cert-item">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.3-9C1 8 2.7 4.5 6 4.5c2 0 3.4 1.1 4 2 .6-.9 2-2 4-2 3.3 0 5 3.5 3.3 7.5C19 16.65 12 21 12 21z"/></svg>
+      <span>Formulado<br>por médicos</span>
+    </div>
+    <div class="cert-item">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l3-8h12l3 8-9 9-9-9z"/></svg>
+      <span>Ingredientes<br>premium</span>
+    </div>
+  </div>
+</div>
+
+<!-- COMPRA FINAL -->
+<div class="sec">
+  <div class="buy-final">
+    <h2 style="color:#FAF7F2; font-size: clamp(24px,4vw,32px);">¿Lista/o para probar RENÖVA+?</h2>
+    <span class="price">$78.286 ARS</span>
+    <div class="btnrow">
+      <button class="btn-primary cta" id="openBuy2">Comprar ahora</button>
+      <a class="btn-secondary" style="color:#FAF7F2; border-bottom-color:#FAF7F2;" href="https://wa.me/5493517684192?text=Hola!%20Quiero%20consultar%20por%20REN%C3%96VA%2B">Consultar por WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<div class="footer">© 2026 FWP Córdoba — Distribuidores independientes de Future World Products</div>
+
+<!-- BARRA FIJA MOBILE -->
+<div class="stickybuy">
+  <span class="price">$78.286</span>
+  <button class="btn-primary cta" id="openBuy3" style="padding:12px 22px;font-size:14px;">Comprar</button>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="buyOverlay">
+  <div class="modalcard" id="buyCard">
+    <button id="buyClose" aria-label="Cerrar" style="position:absolute; top:8px; right:8px; width:44px; height:44px; border:0; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6B6B6B;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div style="display:flex; flex-direction:column; gap:4px; padding-right:36px;">
+      <span style="font-size:12px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#6B6B6B;">Estás comprando</span>
+      <h3>RENÖVA+</h3>
+    </div>
+    <span style="font-size:15px; font-weight:700;">¿Dónde lo recibís?</span>
+
+    <button class="optbtn" id="optCba" style="text-align:left; cursor:pointer; padding:14px 16px; border-radius:14px; border:2px solid #D9D9D6; background:#FFFFFF; display:flex; align-items:center; gap:12px; color:#1A1A1A;">
+      <span id="ringCba" style="flex-shrink:0; width:20px; height:20px; border-radius:50%; border:2px solid #D9D9D6; display:flex; align-items:center; justify-content:center;"><span id="dotCba" style="width:10px; height:10px; border-radius:50%; background:transparent;"></span></span>
+      <span style="flex-grow:1; min-width:0; display:flex; flex-direction:column; gap:3px;">
+        <span style="font-size:15px; font-weight:700;">Soy de Córdoba</span>
+        <span style="font-size:13px; line-height:1.4; color:#4A4A4A;">Coordinamos la entrega con vos, sin costo extra.</span>
+      </span>
+      <span id="priceCba" style="font-size:15px; font-weight:700; white-space:nowrap;"></span>
+    </button>
+
+    <button class="optbtn" id="optExt" style="text-align:left; cursor:pointer; padding:14px 16px; border-radius:14px; border:2px solid #D9D9D6; background:#FFFFFF; display:flex; align-items:center; gap:12px; color:#1A1A1A;">
+      <span id="ringExt" style="flex-shrink:0; width:20px; height:20px; border-radius:50%; border:2px solid #D9D9D6; display:flex; align-items:center; justify-content:center;"><span id="dotExt" style="width:10px; height:10px; border-radius:50%; background:transparent;"></span></span>
+      <span style="flex-grow:1; min-width:0; display:flex; flex-direction:column; gap:3px;">
+        <span style="font-size:15px; font-weight:700;">Soy de otra provincia</span>
+        <span style="font-size:13px; line-height:1.4; color:#4A4A4A;">Te lo enviamos por Correo Argentino. Se suman $10.000 de envío.</span>
+      </span>
+      <span id="priceExt" style="font-size:15px; font-weight:700; white-space:nowrap;"></span>
+    </button>
+
+    <div style="display:flex; flex-direction:column; gap:6px; padding:14px 16px; border-radius:14px; background:#F7F7F5;">
+      <div style="display:flex; justify-content:space-between; font-size:14px; color:#4A4A4A;"><span>Producto</span><span id="productPrice"></span></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; color:#4A4A4A; gap:12px;"><span>Envío</span><span id="shipLine" style="text-align:right;"></span></div>
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:4px; padding-top:8px; border-top:1px solid rgba(20,20,20,0.1);"><span style="font-size:15px; font-weight:700;">Total</span><span id="totalPrice" style="font-family:'Fraunces',serif; font-size:26px; font-weight:600;"></span></div>
+    </div>
+
+    <a id="payLink" class="cta" href="#" target="_blank" rel="noopener noreferrer" style="display:none; background:#009EE3; color:#FFFFFF; padding:16px 20px; border-radius:999px; font-size:16px; font-weight:700; text-align:center;">Pagar con Mercado Pago</a>
+    <div id="payOff" style="background:#E4E4E1; color:#6B6B6B; padding:16px 20px; border-radius:999px; font-size:15px; font-weight:700; text-align:center;">Pago no disponible por ahora</div>
+
+    <p style="margin:0; font-size:13px; line-height:1.5; color:#6B6B6B; text-align:center;">Pagás de forma segura con Mercado Pago. Después de pagar, mandanos el comprobante por WhatsApp<span id="extraNote"></span> y despachamos tu pedido.</p>
+    <a id="waPaid" href="#" target="_blank" rel="noopener noreferrer" style="text-align:center; font-size:14px; font-weight:700; color:#1A1A1A; padding:8px 4px; border-bottom:2px solid #C2168D; align-self:center;">Ya pagué: enviar comprobante por WhatsApp</a>
+  </div>
+</div>
+
+<script>
+  var WHATSAPP = '5493517684192';
+  var SHIPPING = 10000;
+  var PRICE = 78286;
+  var MP_LINK_CBA = '';
+  var MP_LINK_EXT = '';
+  var zone = 'cba';
+
+  function fmt(n) { return '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function $(id) { return document.getElementById(id); }
+
+  function render() {
+    var isExt = zone === 'ext';
+    var total = PRICE + (isExt ? SHIPPING : 0);
+    var link = isExt ? MP_LINK_EXT : MP_LINK_CBA;
+
+    $('optCba').style.borderColor = isExt ? '#D9D9D6' : '#C2168D';
+    $('optCba').style.background = isExt ? '#FFFFFF' : '#C2168D14';
+    $('ringCba').style.borderColor = isExt ? '#D9D9D6' : '#C2168D';
+    $('dotCba').style.background = isExt ? 'transparent' : '#C2168D';
+    $('optExt').style.borderColor = isExt ? '#C2168D' : '#D9D9D6';
+    $('optExt').style.background = isExt ? '#C2168D14' : '#FFFFFF';
+    $('ringExt').style.borderColor = isExt ? '#C2168D' : '#D9D9D6';
+    $('dotExt').style.background = isExt ? '#C2168D' : 'transparent';
+
+    $('priceCba').textContent = fmt(PRICE);
+    $('priceExt').textContent = fmt(PRICE + SHIPPING);
+    $('productPrice').textContent = fmt(PRICE);
+    $('shipLine').textContent = isExt ? fmt(SHIPPING) + ' · Correo Argentino' : 'A coordinar · sin costo';
+    $('totalPrice').textContent = fmt(total);
+
+    if (link) { $('payLink').href = link; $('payLink').style.display = 'block'; $('payOff').style.display = 'none'; }
+    else { $('payLink').style.display = 'none'; $('payOff').style.display = 'block'; }
+
+    $('extraNote').textContent = isExt ? ' con tus datos de envío (nombre, dirección, localidad, provincia y código postal)' : '';
+    var msg = 'Hola! Ya pagué mi pedido: RENÖVA+ por ' + fmt(total) +
+      (isExt ? ' (envío por Correo Argentino). Mis datos de envío: Nombre y apellido: / Dirección: / Localidad y provincia: / Código postal: / Teléfono:'
+             : ' (entrega en Córdoba). Te paso el comprobante.');
+    $('waPaid').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
+  }
+
+  function openBuy() { zone = 'cba'; render(); $('buyOverlay').style.display = 'flex'; }
+  function closeBuy() { $('buyOverlay').style.display = 'none'; }
+
+  ['openBuy', 'openBuy2', 'openBuy3'].forEach(function (id) { $(id).addEventListener('click', openBuy); });
+  $('optCba').addEventListener('click', function () { zone = 'cba'; render(); });
+  $('optExt').addEventListener('click', function () { zone = 'ext'; render(); });
+  $('buyClose').addEventListener('click', closeBuy);
+  $('buyOverlay').addEventListener('click', function (e) { if (e.target === $('buyOverlay')) closeBuy(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeBuy(); });
+</script>
+</body>
+</html>
