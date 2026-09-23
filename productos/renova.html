@@ -51,15 +51,18 @@
   .sec-sub { font-size: 16px; color: #6B6B6B; max-width: 560px; margin: 0; }
 
   /* ---- Ingredientes ---- */
-  .ing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-  .ing-card { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 8px; }
-  .ing-card b { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: #C2168D; }
-  .ing-card span { font-size: 14px; line-height: 1.5; color: #4A4A4A; }
+  .ing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; }
+  .ing-card { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+  .ing-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+  .ing-card-body { padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .ing-card b { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; color: #C2168D; }
+  .ing-card span { font-size: 13.5px; line-height: 1.5; color: #4A4A4A; }
 
   /* ---- Comparación ---- */
   .bg-soft { background: #F6EEF3; }
   .compare-bars { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
-  .bar-row { display: grid; grid-template-columns: 140px 1fr 60px; align-items: center; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: 44px 96px 1fr 60px; align-items: center; gap: 12px; }
+  .bar-logo { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(20,20,20,0.1); background: #FFFFFF; }
   .bar-label { font-size: 14px; font-weight: 600; }
   .bar-track { background: rgba(20,20,20,0.08); border-radius: 999px; height: 16px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 999px; background: #D9D9D6; }
@@ -115,7 +118,8 @@
     .hero { padding: 24px 16px 20px; gap: 28px; }
     .sec { padding: 44px 16px; }
     .btnrow .btn-primary { flex: 1 1 auto; justify-content: center; }
-    .bar-row { grid-template-columns: 96px 1fr 46px; }
+    .bar-row { grid-template-columns: 34px 76px 1fr 46px; gap: 8px; }
+    .bar-logo { width: 34px; height: 34px; }
     .stickybuy { display: flex; }
     body { padding-bottom: 70px; }
   }
@@ -172,15 +176,19 @@
   <div class="sec-head">
     <span class="eyebrow">Qué tiene adentro</span>
     <h2>Una fórmula completa, no solo colágeno</h2>
-    <p class="sec-sub">Cada porción combina 8 ingredientes activos pensados para trabajar juntos.</p>
+    <p class="sec-sub">Cada porción combina 10 ingredientes activos pensados para trabajar juntos.</p>
   </div>
   <div class="ing-grid">
-    <div class="ing-card"><b>Colágeno hidrolizado Peptan®</b><span>11,5 g por porción. Firmeza para la piel y soporte para las articulaciones.</span></div>
-    <div class="ing-card"><b>Resveratrol</b><span>Antioxidante que ayuda a proteger las células del desgaste diario.</span></div>
-    <div class="ing-card"><b>Vitamina C</b><span>Necesaria para que el cuerpo forme colágeno propio.</span></div>
-    <div class="ing-card"><b>CoQ10</b><span>Antioxidante asociado a la vitalidad celular.</span></div>
-    <div class="ing-card"><b>Magnesio y zinc</b><span>Minerales clave para músculos, energía y sistema inmune.</span></div>
-    <div class="ing-card"><b>Arándano y fibra de avena</b><span>Aportan antioxidantes extra y ayudan a la digestión.</span></div>
+    <div class="ing-card"><img src="../assets/ingredientes/colageno.jpg" alt="Colágeno hidrolizado"><div class="ing-card-body"><b>Biopéptidos activos de colágeno</b><span>11,5 g por porción. Firmeza para la piel y soporte para las articulaciones.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/resveratrol.jpg" alt="Resveratrol"><div class="ing-card-body"><b>Resveratrol</b><span>Antioxidante que combate el estrés oxidativo y ayuda a la longevidad celular.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/vitamina-c.jpg" alt="Vitamina C"><div class="ing-card-body"><b>Vitamina C</b><span>Necesaria para que el cuerpo forme colágeno propio.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/coq10.jpg" alt="Coenzima Q10"><div class="ing-card-body"><b>Coenzima Q10</b><span>Antioxidante que contribuye a la regeneración celular.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/magnesio.jpg" alt="Magnesio"><div class="ing-card-body"><b>Magnesio</b><span>Ayuda a fortalecer los huesos con cada toma.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/zinc.jpg" alt="Zinc"><div class="ing-card-body"><b>Zinc</b><span>Contribuye a mejorar tu sistema inmunológico.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/arandano.jpg" alt="Arándano"><div class="ing-card-body"><b>Arándano</b><span>Antioxidantes extra en cada porción.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/fibra-avena.jpg" alt="Fibra de avena"><div class="ing-card-body"><b>Fibra de avena</b><span>Ayuda a la digestión y aporta saciedad.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/fibra-inulina.jpg" alt="Fibra natural de inulina"><div class="ing-card-body"><b>Fibra natural de inulina</b><span>Fibra prebiótica que acompaña la salud digestiva.</span></div></div>
+    <div class="ing-card"><img src="../assets/ingredientes/niacina.jpg" alt="Niacina"><div class="ing-card-body"><b>Niacina</b><span>Aporta a la vitalidad general del organismo.</span></div></div>
   </div>
 </div>
 
@@ -194,21 +202,25 @@
 
   <div class="compare-bars">
     <div class="bar-row">
+      <img class="bar-logo" src="../assets/ingredientes/colageno.jpg" alt="RENÖVA+">
       <span class="bar-label">RENÖVA+</span>
       <div class="bar-track"><div class="bar-fill us" style="width: 100%;"></div></div>
       <span class="bar-val">11,5 g</span>
     </div>
     <div class="bar-row">
+      <img class="bar-logo" src="../assets/competencia/ultraflex.jpg" alt="Ultraflex">
       <span class="bar-label">Ultraflex</span>
       <div class="bar-track"><div class="bar-fill" style="width: 87%;"></div></div>
       <span class="bar-val">10 g</span>
     </div>
     <div class="bar-row">
+      <img class="bar-logo" src="../assets/competencia/colnatur.jpg" alt="Colnatur">
       <span class="bar-label">Colnatur</span>
       <div class="bar-track"><div class="bar-fill" style="width: 87%;"></div></div>
       <span class="bar-val">~10 g</span>
     </div>
     <div class="bar-row">
+      <img class="bar-logo" src="../assets/competencia/natier.jpg" alt="Natier">
       <span class="bar-label">Natier</span>
       <div class="bar-track"><div class="bar-fill" style="width: 67%;"></div></div>
       <span class="bar-val">7,7 g</span>
