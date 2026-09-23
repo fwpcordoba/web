@@ -53,11 +53,14 @@
 
   .bg-soft { background: #FBEBE0; }
   .extra-table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid rgba(20,20,20,0.08); }
-  .extra-table th, .extra-table td { padding: 14px 16px; text-align: left; font-size: 14.5px; }
-  .extra-table th { background: #D9540F; color: #FFFFFF; font-weight: 700; }
-  .extra-table th:nth-child(2), .extra-table th:nth-child(3) { display: flex; align-items: center; gap: 8px; }
-  .extra-table .thimg { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; background: #fff; }
-  .extra-table th:first-child, .extra-table td:first-child { width: 44%; }
+  .extra-table th, .extra-table td { padding: 14px 16px; text-align: left; font-size: 14.5px; vertical-align: middle; }
+  .extra-table th { background: #D9540F; color: #FFFFFF; font-weight: 700; border-left: 1px solid rgba(255,255,255,0.25); }
+  .extra-table th:first-child { border-left: none; }
+  .thwrap { display: flex; align-items: center; gap: 10px; }
+  .extra-table .thimg { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #fff; flex-shrink: 0; }
+  .extra-table th:first-child, .extra-table td:first-child { width: 36%; }
+  .extra-table th:nth-child(2), .extra-table td:nth-child(2) { border-right: 1px solid rgba(20,20,20,0.06); }
+  .extra-table td:nth-child(2) { background: #FDF3EC; }
   .extra-table tr:nth-child(even) td { background: #FDF3EC; }
   .extra-table td { border-top: 1px solid rgba(20,20,20,0.06); }
   .compare-note { font-size: 12.5px; color: #6B6B6B; text-align: center; margin: 16px 0 0; }
@@ -174,8 +177,8 @@
   <table class="extra-table">
     <tr>
       <th>¿Qué trae la porción?</th>
-      <th><img class="thimg" src="../assets/26272a9da41ff2cb346181595abdaf95.jpg" alt="E-BOOST">E-BOOST</th>
-      <th><img class="thimg" src="../assets/competencia/c4.jpg" alt="C4 Original">C4 Original*</th>
+      <th><div class="thwrap"><img class="thimg" src="../assets/ingredientes/eboost-clean.jpg" alt="E-BOOST"><span>E-BOOST</span></div></th>
+      <th><div class="thwrap"><img class="thimg" src="../assets/competencia/c4.jpg" alt="C4 Original"><span>C4 Original*</span></div></th>
     </tr>
     <tr><td>Fuente de energía</td><td>Yerba mate, guaraná, té negro (natural)</td><td>200 mg de cafeína sintética</td></tr>
     <tr><td>Aminoácidos</td><td>Mix natural</td><td>Beta-alanina + citrulina/arginina sintéticos</td></tr>
