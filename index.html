@@ -51,7 +51,7 @@
     .brandsep { display: none !important; }
     .brandcity { font-size: 9px !important; letter-spacing: 1.6px !important; line-height: 1 !important; }
     .brandship { font-size: 10px !important; margin-top: 3px !important; }
-    .navcta { padding: 9px 12px !important; font-size: 13px !important; white-space: nowrap; }
+    .navcta { padding: 9px 12px !important; font-size: 13px !important; white-space: nowrap; flex-shrink: 0; }
     .navcta svg { display: none !important; }
     .slider { width: 100%; height: auto; }
     .sec { padding: 52px 16px !important; }
@@ -63,8 +63,8 @@
     .wafloat { right: 14px !important; bottom: 14px !important; width: 50px !important; height: 50px !important; }
   }
 
-  /* Celulares muy angostos (320–380px): el menú pierde los links de texto para que el botón de WhatsApp no se corte */
-  @media (max-width: 380px) {
+  /* Celulares (hasta 440px): el menú pierde los links de texto para que el botón de WhatsApp no se corte */
+  @media (max-width: 440px) {
     .navlinks { display: none !important; }
   }
 </style>
@@ -139,7 +139,7 @@
         </a>
 
         <!-- 24BURN -->
-        <a class="card pcard" href="productos/24burn.html" style="background: #FFFFFF; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 14px; border: 1px solid rgba(20,20,20,0.08); border-top: 4px solid #8DC63F; min-width: 0; color: inherit;">
+        <div class="card pcard" role="button" tabindex="0" onClick="{{buyBurn}}" style="background: #FFFFFF; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 14px; border: 1px solid rgba(20,20,20,0.08); border-top: 4px solid #8DC63F; min-width: 0;">
           <span class="pimg"><img src="./assets/e81847b64b62c242e4a22e41c218e28f.jpg" alt="24BURN" loading="lazy"></span>
           <h3 style="font-size: 22px; font-weight: 500; color: #5E8F23;">24BURN</h3>
           <p style="font-size: 14.5px; line-height: 1.6; color: #4A4A4A; flex-grow: 1; margin: 0;">Té verde + panax ginseng + L-carnitina, sabor té-limón. Reduce y activa todos los días, a la par de tu rutina.</p>
@@ -147,11 +147,11 @@
             <span style="font-size: 26px; font-weight: 600; font-family: 'Fraunces', serif;">$69.586</span>
             <span style="font-size: 13px; color: #6B6B6B;">ARS</span>
           </div>
-          <span class="cta" style="background: #5E8F23; color: #FFFFFF; padding: 14px 18px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; display: block;">Ver más y comprar</span>
-        </a>
+          <button class="cta" onClick="{{buyBurn}}" style="background: #5E8F23; color: #FFFFFF; padding: 14px 18px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 700; cursor: pointer;">Comprar</button>
+        </div>
 
         <!-- E-BOOST -->
-        <a class="card pcard" href="productos/eboost.html" style="background: #FFFFFF; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 14px; border: 1px solid rgba(20,20,20,0.08); border-top: 4px solid #F26522; min-width: 0; color: inherit;">
+        <div class="card pcard" role="button" tabindex="0" onClick="{{buyBoost}}" style="background: #FFFFFF; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 14px; border: 1px solid rgba(20,20,20,0.08); border-top: 4px solid #F26522; min-width: 0;">
           <span class="pimg"><img src="./assets/26272a9da41ff2cb346181595abdaf95.jpg" alt="E-BOOST" loading="lazy"></span>
           <h3 style="font-size: 22px; font-weight: 500; color: #D9540F;">E-BOOST</h3>
           <p style="font-size: 14.5px; line-height: 1.6; color: #4A4A4A; flex-grow: 1; margin: 0;">Guaraná + té negro + yerba mate, sabor mandarina, sin azúcar. Potencia, enfoque y energía.</p>
@@ -159,8 +159,8 @@
             <span style="font-size: 26px; font-weight: 600; font-family: 'Fraunces', serif;">$69.586</span>
             <span style="font-size: 13px; color: #6B6B6B;">ARS</span>
           </div>
-          <span class="cta" style="background: #D9540F; color: #FFFFFF; padding: 14px 18px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; display: block;">Ver más y comprar</span>
-        </a>
+          <button class="cta" onClick="{{buyBoost}}" style="background: #D9540F; color: #FFFFFF; padding: 14px 18px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 700; cursor: pointer;">Comprar</button>
+        </div>
 
       </div>
       <p style="text-align: center; font-size: 13px; color: #6B6B6B; margin: 0;">Precios en pesos argentinos. Envíos a otras provincias por Correo Argentino: +$10.000.</p>
@@ -178,7 +178,7 @@
         <div style="display: flex; flex-direction: column; gap: 12px; padding: 8px 4px;">
           <span style="font-family: 'Fraunces', serif; font-size: 44px; font-weight: 500; color: #C2168D; line-height: 1;">1</span>
           <h3 style="font-size: 20px; font-weight: 500;">Elegí tu producto</h3>
-          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4A4A4A;">Tocá el producto que más te interesa para ver todo lo que tiene y apretá Comprar.</p>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4A4A4A;">Tocá el producto que más te interesa y apretá Comprar.</p>
         </div>
         <div style="display: flex; flex-direction: column; gap: 12px; padding: 8px 4px;">
           <span style="font-family: 'Fraunces', serif; font-size: 44px; font-weight: 500; color: #5E8F23; line-height: 1;">2</span>
