@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FWP Córdoba — Bienestar real</title>
 <script src="./vendor/react.js"></script>
 <script src="./vendor/react-dom.js"></script>
@@ -121,20 +122,27 @@
   /* ---- Celular ---- */
   @media (max-width: 640px) {
     .navbar { padding: 10px 14px !important; gap: 8px !important; }
-    .navright { gap: 12px !important; }
+    .navright { gap: 10px !important; }
     .navlinks { font-size: 13px !important; white-space: nowrap; }
     .brand { flex-direction: column !important; align-items: flex-start !important; gap: 0 !important; }
     .brandsep { display: none !important; }
     .brandcity { font-size: 9px !important; letter-spacing: 1.6px !important; line-height: 1 !important; }
     .navcta { padding: 9px 12px !important; font-size: 13px !important; white-space: nowrap; }
     .navcta svg { display: none !important; }
-    .hero { padding: 36px 16px 44px !important; }
+    .hero { padding: 36px 16px 60px !important; }
     .herogrid { gap: 30px !important; }
     .sec { padding: 52px 16px !important; }
     .pcard { padding: 16px !important; }
     .modalcard { padding: 22px 18px !important; }
+    .optbtn { padding: 12px !important; gap: 10px !important; }
+    .optlabel { min-width: 0 !important; }
     .footerwrap { flex-direction: column !important; text-align: center; }
-    .wafloat { right: 14px !important; bottom: 14px !important; width: 52px !important; height: 52px !important; }
+    .wafloat { right: 14px !important; bottom: 14px !important; width: 50px !important; height: 50px !important; }
+  }
+
+  /* Celulares muy angostos (320–380px): el menú pierde los links de texto para que el botón de WhatsApp no se corte */
+  @media (max-width: 380px) {
+    .navlinks { display: none !important; }
   }
 </style>
 </helmet>
@@ -437,7 +445,7 @@
 
         <button class="optbtn" onClick="{{pickCba}}" style="text-align: left; cursor: pointer; padding: 14px 16px; border-radius: 14px; border: 2px solid {{modal.cbaBorder}}; background: {{modal.cbaBg}}; display: flex; align-items: center; gap: 12px; color: #1A1A1A;">
           <span style="flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; border: 2px solid {{modal.cbaBorder}}; display: flex; align-items: center; justify-content: center;"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{modal.cbaDot}};"></span></span>
-          <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px;">
+          <span class="optlabel" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;">
             <span style="font-size: 15px; font-weight: 700;">Soy de Córdoba</span>
             <span style="font-size: 13px; line-height: 1.4; color: #4A4A4A;">Coordinamos la entrega con vos, sin costo extra.</span>
           </span>
@@ -446,7 +454,7 @@
 
         <button class="optbtn" onClick="{{pickExt}}" style="text-align: left; cursor: pointer; padding: 14px 16px; border-radius: 14px; border: 2px solid {{modal.extBorder}}; background: {{modal.extBg}}; display: flex; align-items: center; gap: 12px; color: #1A1A1A;">
           <span style="flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; border: 2px solid {{modal.extBorder}}; display: flex; align-items: center; justify-content: center;"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{modal.extDot}};"></span></span>
-          <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px;">
+          <span class="optlabel" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;">
             <span style="font-size: 15px; font-weight: 700;">Soy de otra provincia</span>
             <span style="font-size: 13px; line-height: 1.4; color: #4A4A4A;">Te lo enviamos por Correo Argentino. Se suman $10.000 de envío.</span>
           </span>
