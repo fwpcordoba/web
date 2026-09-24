@@ -108,6 +108,10 @@
   .stickybuy { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: #FFFFFF; border-top: 1px solid rgba(20,20,20,0.1); padding: 10px 16px; display: none; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -6px 18px rgba(20,20,20,0.08); }
   .stickybuy .price { font-size: 20px; }
 
+  /* ---- WhatsApp flotante ---- */
+  .wafloat { position: fixed; right: 20px; bottom: 20px; z-index: 30; width: 56px; height: 56px; border-radius: 50%; background: #1FA855; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 22px rgba(20,20,20,0.28); transition: transform 0.15s ease; }
+  .wafloat:hover { transform: scale(1.06); }
+
   /* ---- Modal ---- */
   .overlay { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(10,12,14,0.6); backdrop-filter: blur(3px); align-items: center; justify-content: center; padding: 14px; box-sizing: border-box; }
   .modalcard { background: #FFFFFF; border-radius: 22px; max-width: 460px; width: 100%; max-height: 92vh; overflow-y: auto; padding: 28px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; gap: 16px; border-top: 5px solid #C2168D; }
@@ -123,10 +127,15 @@
     .bar-logo { width: 34px; height: 34px; }
     .stickybuy { display: flex; }
     body { padding-bottom: 70px; }
+    .wafloat { right: 14px; bottom: 82px; width: 50px; height: 50px; }
   }
 </style>
 </head>
 <body>
+
+<a class="wafloat" href="https://wa.me/5493517684192?text=Hola!%20Quiero%20consultar%20por%20REN%C3%96VA%2B" aria-label="Escribinos por WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+</a>
 
 <div class="topbar">Envíos a todo el país por Correo Argentino · Entrega personal en Córdoba</div>
 
