@@ -75,7 +75,12 @@
   .versus-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
   .versus-card li { font-size: 14.5px; line-height: 1.5; display: flex; gap: 10px; }
 
-  .review-placeholder { border: 2px dashed rgba(217,84,15,0.35); background: #FDF3EC; border-radius: 18px; padding: 28px; max-width: 480px; margin: 16px auto 0; text-align: center; font-size: 14px; color: #6B6B6B; }
+  .review-card { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 18px; padding: 24px; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  .review-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .review-wa { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #1FA855; }
+  .review-wa svg { flex-shrink: 0; }
+  .review-time { font-size: 12px; color: #9A9A9A; }
+  .review-quote { font-size: 15px; line-height: 1.55; color: #2A2A2A; margin: 0; }
 
   .cert-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center; }
   .cert-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -227,12 +232,19 @@
 <!-- RESEÑAS -->
 <div class="sec bg-soft">
   <div class="sec-head">
-    <span class="eyebrow">Primeras reseñas</span>
+    <span class="eyebrow">Reseña real</span>
     <h2>Lo que dicen quienes ya lo probaron</h2>
-    <p class="sec-sub">Estamos sumando reseñas reales de clientes. Si ya lo probaste, contanos tu experiencia por WhatsApp.</p>
+    <p class="sec-sub">Reseña real de un cliente, enviada por WhatsApp. Pronto sumamos más reseñas y videos de clientes.</p>
   </div>
-  <div class="review-placeholder">
-    [ Reseña pendiente de cargar ]
+  <div class="review-card">
+    <div class="review-top">
+      <span class="review-wa">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        Cliente real por WhatsApp
+      </span>
+      <span class="review-time">14:26</span>
+    </div>
+    <p class="review-quote">Llegó excelente, Nico. Con tema facultad, gimnasio, trabajo y después fútbol, llego bien a hacer todas mis actividades con mucho más energía y mejor rendimiento. Además me ayudó a la concentración a la hora de estudiar. Gracias de verdad.</p>
   </div>
 </div>
 

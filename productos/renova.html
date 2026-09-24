@@ -89,7 +89,17 @@
 
   /* ---- Reseñas ---- */
   .review-card { background: #FFFFFF; border: 1px solid rgba(20,20,20,0.08); border-radius: 18px; padding: 24px; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-  .review-placeholder { border: 2px dashed rgba(194,22,141,0.35); background: #FAF5F8; border-radius: 18px; padding: 28px; max-width: 480px; margin: 16px auto 0; text-align: center; font-size: 14px; color: #6B6B6B; }
+  .review-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .review-wa { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #1FA855; }
+  .review-wa svg { flex-shrink: 0; }
+  .review-time { font-size: 12px; color: #9A9A9A; }
+  .review-stars { color: #F5A623; font-size: 16px; letter-spacing: 2px; }
+  .review-quote { font-size: 15px; line-height: 1.55; color: #2A2A2A; margin: 0; }
+  .review-quote b { display: block; font-family: 'Fraunces', serif; font-size: 16px; margin-bottom: 4px; color: #1A1A1A; }
+  .chat-mini { display: flex; flex-direction: column; gap: 8px; }
+  .chat-bubble { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 14.5px; line-height: 1.45; }
+  .chat-bubble.out { align-self: flex-start; background: #F1E4EE; color: #1A1A1A; border-bottom-left-radius: 4px; }
+  .chat-bubble.in { align-self: flex-end; background: #C2168D; color: #FFFFFF; border-bottom-right-radius: 4px; }
 
   /* ---- Certificaciones ---- */
   .cert-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center; }
@@ -278,12 +288,22 @@
 <!-- RESEÑAS -->
 <div class="sec bg-soft">
   <div class="sec-head">
-    <span class="eyebrow">Primeras reseñas</span>
+    <span class="eyebrow">Reseña real</span>
     <h2>Lo que dicen quienes ya lo probaron</h2>
-    <p class="sec-sub">Estamos sumando reseñas reales de clientes. Si ya lo probaste, contanos tu experiencia por WhatsApp.</p>
+    <p class="sec-sub">Mensaje real de una clienta por WhatsApp, después de recibir su pedido. Pronto sumamos más reseñas y videos de clientes.</p>
   </div>
-  <div class="review-placeholder">
-    [ Reseña pendiente de cargar — captura de WhatsApp del cliente ]
+  <div class="review-card">
+    <div class="review-top">
+      <span class="review-wa">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        Cliente real por WhatsApp
+      </span>
+      <span class="review-time">8:51 a.m.</span>
+    </div>
+    <div class="chat-mini">
+      <div class="chat-bubble out">Hola Emi!</div>
+      <div class="chat-bubble in">Llegó muy bien. Es muy rico!</div>
+    </div>
   </div>
 </div>
 
