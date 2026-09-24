@@ -29,17 +29,20 @@
   .hero { background: #141414; }
   .slider { position: relative; height: min(calc(100vh - 76px), 840px); max-width: 100%; margin: 0 auto; aspect-ratio: 2 / 3; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
   .track { display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); }
-  .slide { flex: 0 0 100%; height: 100%; }
-  .slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+  .slide { position: relative; flex: 0 0 100%; height: 100%; background-size: cover; background-position: center; overflow: hidden; }
+  .slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; position: relative; z-index: 1; }
   .dots { position: absolute; left: 18px; bottom: 18px; display: flex; gap: 8px; z-index: 2; }
   .sdot { width: 10px; height: 10px; padding: 0; border-radius: 999px; border: 0; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.35); transition: width 0.3s ease, background 0.3s ease; }
   .snext { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer; background: rgba(255,255,255,0.82); color: #141414; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 2; }
   .snext:hover { background: #FFFFFF; }
 
-  /* En desktop la foto ocupa todo el ancho, sin espacio negro alrededor */
+  /* En desktop: se ve la foto entera (sin recortar) y el espacio sobrante se rellena con la misma
+     foto difuminada de fondo, para no dejar bordes negros vacíos */
   @media (min-width: 900px) {
     .hero { padding: 0; }
     .slider { width: 100%; max-width: 100%; height: 560px; aspect-ratio: auto; }
+    .slide img { object-fit: contain; }
+    .slide::before { content: ''; position: absolute; inset: -30px; background-image: inherit; background-size: cover; background-position: center; filter: blur(35px) brightness(0.55); z-index: 0; }
   }
 
   /* ---- Catálogo ---- */
@@ -116,9 +119,9 @@
   <div class="hero" style="width: 100%;">
     <div class="slider" onTouchStart="{{touchStart}}" onTouchEnd="{{touchEnd}}">
       <div class="track" style="transform: translateX({{slideOffset}});">
-        <div class="slide"><img src="./assets/hero-renova.jpg" alt="RENÖVA+: colágeno + proteína + 9 propiedades más" draggable="false"></div>
-        <div class="slide"><img src="./assets/hero-eboost.jpg" alt="E-BOOST: más energía, concentración, potencia y recuperación" draggable="false"></div>
-        <div class="slide"><img src="./assets/hero-24burn.jpg" alt="24BURN: quemador de grasa" draggable="false"></div>
+        <div class="slide" style="background-image: url(./assets/hero-renova.jpg);"><img src="./assets/hero-renova.jpg" alt="RENÖVA+: colágeno + proteína + 9 propiedades más" draggable="false"></div>
+        <div class="slide" style="background-image: url(./assets/hero-eboost.jpg);"><img src="./assets/hero-eboost.jpg" alt="E-BOOST: más energía, concentración, potencia y recuperación" draggable="false"></div>
+        <div class="slide" style="background-image: url(./assets/hero-24burn.jpg);"><img src="./assets/hero-24burn.jpg" alt="24BURN: quemador de grasa" draggable="false"></div>
       </div>
       <div class="dots">
         <button class="sdot" onClick="{{goTo0}}" aria-label="Imagen 1" style="width: {{dot0.w}}; background: {{dot0.bg}};"></button>
