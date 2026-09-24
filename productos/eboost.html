@@ -26,7 +26,8 @@
 
   .hero { max-width: 1080px; margin: 0 auto; padding: 40px 24px 24px; display: flex; gap: 48px; flex-wrap: wrap; box-sizing: border-box; }
   .hero-media { flex: 1 1 380px; min-width: 0; }
-  .hero-media img { width: 100%; border-radius: 20px; background: #FBEBE0; }
+  .hero-media-box { width: 100%; aspect-ratio: 9/16; border-radius: 20px; overflow: hidden; background: #FBEBE0; box-shadow: 0 20px 44px rgba(20,20,20,0.12); }
+  .hero-media-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .hero-info { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
   .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .badge { font-size: 12px; font-weight: 700; letter-spacing: 0.03em; background: #FBEBE0; color: #D9540F; padding: 5px 12px; border-radius: 999px; }
@@ -125,7 +126,7 @@
 <!-- HERO -->
 <div class="hero">
   <div class="hero-media">
-    <img src="../assets/26272a9da41ff2cb346181595abdaf95.jpg" alt="E-BOOST, energía natural FWP">
+    <div class="hero-media-box"><img src="../assets/26272a9da41ff2cb346181595abdaf95.jpg" alt="E-BOOST, energía natural FWP"></div>
   </div>
   <div class="hero-info">
     <div class="badge-row">
@@ -365,6 +366,25 @@
   $('buyClose').addEventListener('click', closeBuy);
   $('buyOverlay').addEventListener('click', function (e) { if (e.target === $('buyOverlay')) closeBuy(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeBuy(); });
+
+  // Deslizar el dedo hacia la izquierda para volver a la home
+  (function () {
+    var sx = 0, sy = 0, tracking = false;
+    document.addEventListener('touchstart', function (e) {
+      var t = e.touches[0];
+      sx = t.clientX; sy = t.clientY; tracking = true;
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!tracking || $('buyOverlay').style.display === 'flex') return;
+      var t = e.touches[0];
+      var dx = t.clientX - sx, dy = t.clientY - sy;
+      if (dx < -90 && Math.abs(dy) < 60) {
+        tracking = false;
+        window.location.href = '../index.html';
+      }
+    }, { passive: true });
+    document.addEventListener('touchend', function () { tracking = false; });
+  })();
 </script>
 </body>
 </html>
