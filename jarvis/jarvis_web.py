@@ -142,8 +142,11 @@ def cargar_oido():
     global oido, oido_error
     try:
         from faster_whisper import WhisperModel
-        print(f"[Oído] Cargando Whisper '{MODELO_OIDO}' (la primera vez se descarga, puede tardar)...")
-        oido = WhisperModel(MODELO_OIDO, device="cpu", compute_type="int8")
+        # Si el modelo está bajado a mano en C:\Jarvis\oido\<modelo>, lo usa desde ahí (sin internet)
+        local = os.path.join(CARPETA, "oido", MODELO_OIDO)
+        origen = local if os.path.exists(os.path.join(local, "model.bin")) else MODELO_OIDO
+        print(f"[Oído] Cargando Whisper desde '{origen}' (si se descarga, puede tardar)...")
+        oido = WhisperModel(origen, device="cpu", compute_type="int8")
         print("[Oído] Listo.")
     except Exception as e:
         oido_error = str(e)
