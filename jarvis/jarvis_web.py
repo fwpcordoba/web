@@ -1,20 +1,46 @@
+"""
+J.A.R.V.I.S. - servidor local
+Corre todo en tu compu: la mente (Ollama), el oído (Whisper) y la voz (Piper).
+Para encenderlo:  python jarvis_web.py
+Para apagarlo:    Ctrl + C en la ventana de PowerShell
+"""
+import difflib
+import io
 import json
 import os
+import re
 import threading
+import unicodedata
+import urllib.parse
+import urllib.request
+import wave
 import webbrowser
+from datetime import datetime
 
+import numpy as np
 import ollama
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request, send_file
 
-# ===== CONFIGURACIÓN =====
-MODELO = "llama3.2"
-ARCHIVO_MEMORIA = "C:/Jarvis/memoria.json"
+# =====================================================================
+# CONFIGURACIÓN (lo que podés cambiar a tu gusto)
+# =====================================================================
+CARPETA = os.path.dirname(os.path.abspath(__file__))
+MODELO = "llama3.2"                      # la mente de Jarvis
+ARCHIVO_MEMORIA = os.path.join(CARPETA, "memoria.json")
+CARPETA_PROYECTOS = os.path.join(CARPETA, "proyectos")
+CIUDAD = "Córdoba"                       # para el clima
+PAIS = "AR"                              # código del país de la ciudad
+VOZ = "es_MX-ald-medium"                 # voz de Piper (hombre, latino)
+VELOCIDAD_VOZ = 1.1                      # más alto = habla más lento
+MODELO_OIDO = "small"                    # Whisper: "base" es más rápido, "small" entiende mejor
 PUERTO = 5000
 
 app = Flask(__name__)
 
 
-# ===== MEMORIA (la misma libreta que usa jarvis.py) =====
+# =====================================================================
+# MEMORIA
+# =====================================================================
 def cargar_memoria():
     if os.path.exists(ARCHIVO_MEMORIA):
         with open(ARCHIVO_MEMORIA, "r", encoding="utf-8") as f:
@@ -29,210 +55,325 @@ def guardar_memoria(datos):
 
 memoria = cargar_memoria()
 historial = []
+os.makedirs(CARPETA_PROYECTOS, exist_ok=True)
 
 
-# ===== PERSONALIDAD =====
+def sin_acentos(texto):
+    texto = unicodedata.normalize("NFD", texto.lower())
+    return "".join(c for c in texto if unicodedata.category(c) != "Mn")
+
+
+# =====================================================================
+# PERSONALIDAD
+# =====================================================================
 def instrucciones():
+    ahora = datetime.now().strftime("%d/%m/%Y %H:%M")
     texto = (
         "Sos JARVIS, el asistente personal de Emi, inspirado en el de Iron Man. "
-        "Hablás en español argentino, sos educado, un poco ingenioso y le decís 'señor' a Emi de vez en cuando. "
-        "Respondé corto y claro, en 1 a 3 oraciones, porque tus respuestas se leen en voz alta. "
-        "No uses emojis, asteriscos ni listas. "
+        "Hablás en español latino neutro, con un tono elegante, tranquilo y un poco ingenioso. "
+        "Le decís 'señor' a Emi de vez en cuando. "
+        "Respondé corto: 1 a 3 oraciones, porque tus respuestas se leen en voz alta. "
+        "No uses emojis, asteriscos, listas ni markdown. "
         "Emi y Feli son dos chicos de 17 y 18 años que tienen un emprendimiento de servicios digitales: "
         "tarjetas NFC de reseñas, agentes de IA, webs, apps y edición de video. "
-        "Si no sabés algo, decilo en vez de inventar."
+        "Si no sabés algo, decilo en vez de inventar. "
+        f"Fecha y hora actual: {ahora}."
     )
     if memoria:
-        texto += "\n\nCosas que sabés de ellos:\n"
-        for dato in memoria:
-            texto += "- " + dato + "\n"
+        texto += "\n\nCosas que sabés de ellos:\n" + "\n".join("- " + d for d in memoria)
     return texto
 
 
-# ===== CEREBRO: recibe un mensaje y devuelve la respuesta =====
-@app.route("/chat", methods=["POST"])
-def chat():
-    texto = (request.json or {}).get("texto", "").strip()
-    if not texto:
-        return jsonify(respuesta="")
+# =====================================================================
+# OÍDO: Whisper (convierte tu voz en texto, sin internet)
+# =====================================================================
+oido = None
+oido_listo = threading.Event()
 
-    if texto.lower() == "memoria":
-        if memoria:
-            return jsonify(respuesta="Esto es lo que recuerdo: " + ". ".join(memoria) + ".")
-        return jsonify(respuesta="Todavía no tengo nada guardado, señor.")
+# Frases que Whisper a veces "inventa" cuando hay silencio
+FRASES_FANTASMA = ["amara.org", "subtitulos", "gracias por ver", "suscribete", "gracias por su atencion"]
 
-    if texto.lower().startswith(("recordá:", "recorda:")):
-        dato = texto.split(":", 1)[1].strip()
-        memoria.append(dato)
+
+def cargar_oido():
+    global oido
+    try:
+        from faster_whisper import WhisperModel
+        print(f"[Oído] Cargando Whisper '{MODELO_OIDO}' (la primera vez se descarga, puede tardar)...")
+        oido = WhisperModel(MODELO_OIDO, device="cpu", compute_type="int8")
+        print("[Oído] Listo.")
+    except Exception as e:
+        print("[Oído] No se pudo cargar Whisper:", e)
+    oido_listo.set()
+
+
+# =====================================================================
+# VOZ: Piper (convierte texto en voz, sin internet)
+# =====================================================================
+voz = None
+
+
+def cargar_voz():
+    global voz
+    try:
+        from piper import PiperVoice
+        modelo = os.path.join(CARPETA, "voces", VOZ + ".onnx")
+        if not os.path.exists(modelo):
+            print(f"[Voz] No encontré {modelo}. Uso la voz del navegador.")
+            return
+        voz = PiperVoice.load(modelo)
+        print(f"[Voz] Voz '{VOZ}' lista.")
+    except Exception as e:
+        print("[Voz] No se pudo cargar Piper:", e, "- Uso la voz del navegador.")
+
+
+# =====================================================================
+# MÓDULOS (los puntos de la esfera)
+# =====================================================================
+CODIGOS_CLIMA = {
+    0: "cielo despejado", 1: "mayormente despejado", 2: "parcialmente nublado", 3: "nublado",
+    45: "niebla", 48: "niebla", 51: "llovizna leve", 53: "llovizna", 55: "llovizna intensa",
+    61: "lluvia leve", 63: "lluvia", 65: "lluvia fuerte", 71: "nieve leve", 73: "nieve", 75: "nieve fuerte",
+    80: "chaparrones", 81: "chaparrones", 82: "chaparrones fuertes", 95: "tormenta", 96: "tormenta con granizo",
+    99: "tormenta con granizo",
+}
+
+
+def leer_json(url):
+    with urllib.request.urlopen(url, timeout=10) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def obtener_clima():
+    lugar = leer_json(
+        "https://geocoding-api.open-meteo.com/v1/search?"
+        + urllib.parse.urlencode({"name": CIUDAD, "count": 1, "language": "es", "countryCode": PAIS})
+    )["results"][0]
+    lat, lon = lugar["latitude"], lugar["longitude"]
+    datos = leer_json(
+        "https://api.open-meteo.com/v1/forecast?"
+        + urllib.parse.urlencode({
+            "latitude": lat, "longitude": lon, "timezone": "auto", "forecast_days": 3,
+            "current": "temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m",
+            "daily": "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code",
+        })
+    )
+    actual, diario = datos["current"], datos["daily"]
+    dias = []
+    for i in range(len(diario["time"])):
+        dias.append({
+            "fecha": diario["time"][i],
+            "max": round(diario["temperature_2m_max"][i]),
+            "min": round(diario["temperature_2m_min"][i]),
+            "lluvia": diario["precipitation_probability_max"][i],
+            "estado": CODIGOS_CLIMA.get(diario["weather_code"][i], "variable"),
+        })
+    return {
+        "ciudad": lugar["name"], "lat": lat, "lon": lon,
+        "temperatura": round(actual["temperature_2m"]),
+        "sensacion": round(actual["apparent_temperature"]),
+        "humedad": actual["relative_humidity_2m"],
+        "viento": round(actual["wind_speed_10m"]),
+        "estado": CODIGOS_CLIMA.get(actual["weather_code"], "variable"),
+        "dias": dias,
+    }
+
+
+def frase_clima(c):
+    hoy = c["dias"][0]
+    texto = (f"En {c['ciudad']} hay {c['temperatura']} grados, con {c['estado']}. "
+             f"Hoy la máxima es de {hoy['max']} y la mínima de {hoy['min']}.")
+    if hoy["lluvia"] is not None and hoy["lluvia"] >= 40:
+        texto += f" Hay {hoy['lluvia']} por ciento de probabilidad de lluvia, señor. Lleve paraguas."
+    return texto
+
+
+def listar_proyectos():
+    elementos = []
+    for nombre in sorted(os.listdir(CARPETA_PROYECTOS)):
+        ruta = os.path.join(CARPETA_PROYECTOS, nombre)
+        elementos.append({"nombre": nombre, "tipo": "carpeta" if os.path.isdir(ruta) else "archivo"})
+    return elementos
+
+
+def abrir_proyecto(nombre):
+    ruta = os.path.realpath(os.path.join(CARPETA_PROYECTOS, nombre))
+    base = os.path.realpath(CARPETA_PROYECTOS)
+    if not ruta.startswith(base + os.sep) or not os.path.exists(ruta):
+        return False
+    if hasattr(os, "startfile"):          # solo existe en Windows
+        os.startfile(ruta)
+    return True
+
+
+def datos_sistema():
+    ahora = datetime.now()
+    dias = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+    meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+             "septiembre", "octubre", "noviembre", "diciembre"]
+    return {
+        "hora": ahora.strftime("%H:%M"),
+        "fecha": f"{dias[ahora.weekday()]} {ahora.day} de {meses[ahora.month - 1]}",
+        "modelo": MODELO, "voz": VOZ if voz else "navegador",
+        "oido": MODELO_OIDO if oido else "cargando" if not oido_listo.is_set() else "no disponible",
+        "recuerdos": len(memoria),
+    }
+
+
+# =====================================================================
+# CEREBRO: decide qué hacer con lo que le decís
+# =====================================================================
+def responder(texto):
+    t = sin_acentos(texto).strip(" .,!?¿¡")
+    t = re.sub(r"^(oye |hey |che )?jarvis[ ,]*", "", t)
+
+    # Recordar algo: "recordá que...", "acordate: ..."
+    m = re.match(r"^(recorda|acordate|anota|guarda)( que|:| esto:?)?\s+(.+)", t)
+    if m:
+        original = re.sub(r"^.*?(record[aá]|acordate|anot[aá]|guard[aá])( que|:| esto:?)?\s+", "",
+                          texto, count=1, flags=re.IGNORECASE).strip(" .")
+        memoria.append(original or m.group(3))
         guardar_memoria(memoria)
-        return jsonify(respuesta="Anotado, señor. No me lo voy a olvidar.")
+        return {"respuesta": "Anotado, señor. No me lo voy a olvidar.", "panel": "memoria", "datos": memoria}
 
+    if t in ("memoria", "que recordas", "que te acordas") or "que sabes de mi" in t:
+        if memoria:
+            return {"respuesta": f"Tengo {len(memoria)} cosas guardadas, señor. Se las muestro.",
+                    "panel": "memoria", "datos": memoria}
+        return {"respuesta": "Todavía no tengo nada guardado.", "panel": "memoria", "datos": memoria}
+
+    if re.search(r"\b(clima|temperatura|llover|llueve|lluvia|calor|frio|pronostico)\b", t):
+        try:
+            c = obtener_clima()
+            return {"respuesta": frase_clima(c), "panel": "clima", "datos": c}
+        except Exception:
+            return {"respuesta": "No pude conectarme al servicio del clima. Revise la conexión a internet."}
+
+    if re.search(r"\b(que hora|que dia|que fecha)\b", t):
+        s = datos_sistema()
+        return {"respuesta": f"Son las {s['hora']}, {s['fecha']}.", "panel": "sistema", "datos": s}
+
+    if re.search(r"\b(abri|abrir|abrime|mostrame|mostra)\b", t) and re.search(r"\b(proyecto|proyectos|carpeta|archivo)", t):
+        lista = listar_proyectos()
+        nombres = [p["nombre"] for p in lista]
+        resto = re.sub(r".*\b(proyecto|proyectos|carpeta|archivo)s?\b\s*(de |del |llamado )?", "", t).strip()
+        if resto:
+            parecidos = difflib.get_close_matches(resto, [sin_acentos(n) for n in nombres], n=1, cutoff=0.4)
+            if parecidos:
+                nombre = nombres[[sin_acentos(n) for n in nombres].index(parecidos[0])]
+                abrir_proyecto(nombre)
+                return {"respuesta": f"Abriendo {nombre}, señor.", "panel": "proyectos", "datos": lista}
+        if not lista:
+            return {"respuesta": "La carpeta de proyectos está vacía. Agregue carpetas en Jarvis, proyectos.",
+                    "panel": "proyectos", "datos": lista}
+        return {"respuesta": f"Tiene {len(lista)} proyectos. ¿Cuál abro?", "panel": "proyectos", "datos": lista}
+
+    if re.search(r"\b(cerra|cerrar|volve|volver)\b", t) and len(t.split()) <= 4:
+        return {"respuesta": "Listo.", "panel": "cerrar"}
+
+    # Si no es un comando, le pregunta a la mente (Ollama)
     historial.append({"role": "user", "content": texto})
     mensajes = [{"role": "system", "content": instrucciones()}] + historial[-10:]
     try:
-        resultado = ollama.chat(model=MODELO, messages=mensajes)
+        resultado = ollama.chat(model=MODELO, messages=mensajes, keep_alive="30m",
+                                options={"num_predict": 200})
         respuesta = resultado["message"]["content"].strip()
     except Exception:
         historial.pop()
-        return jsonify(respuesta="No puedo conectarme con mi cerebro. Revisá que Ollama esté abierto, la llamita al lado del reloj.")
+        return {"respuesta": "No puedo conectarme con mi cerebro. Revise que Ollama esté abierto."}
+    respuesta = re.sub(r"[*#_`]", "", respuesta)
     historial.append({"role": "assistant", "content": respuesta})
-    return jsonify(respuesta=respuesta)
+    return {"respuesta": respuesta}
 
 
-# ===== LA PÁGINA (la cara de Jarvis) =====
+# =====================================================================
+# RUTAS (las "puertas" por donde la página habla con el servidor)
+# =====================================================================
 @app.route("/")
 def inicio():
-    return PAGINA
+    return send_file(os.path.join(CARPETA, "pagina.html"))
 
 
-PAGINA = r"""<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>J.A.R.V.I.S.</title>
-<style>
-  :root { --cian: #3fd8ff; --fondo: #02070d; }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; background: radial-gradient(circle at center, #08202e 0%, var(--fondo) 70%);
-    color: #cfefff; font-family: "Segoe UI", sans-serif; display: flex; flex-direction: column; align-items: center;
-  }
-  h1 { letter-spacing: 0.5em; font-weight: 300; color: var(--cian); margin: 28px 0 4px; text-shadow: 0 0 12px var(--cian); }
-  #estado { font-size: 13px; letter-spacing: 0.2em; opacity: 0.7; text-transform: uppercase; }
-
-  /* ===== El holograma ===== */
-  .orbe { position: relative; width: 260px; height: 260px; margin: 30px 0; }
-  .anillo { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; }
-  .a1 { border-top-color: var(--cian); border-bottom-color: var(--cian); animation: girar 6s linear infinite; }
-  .a2 { inset: 25px; border-left-color: var(--cian); border-right-color: var(--cian); opacity: 0.7; animation: girar 4s linear infinite reverse; }
-  .a3 { inset: 50px; border: 2px dashed rgba(63,216,255,0.5); animation: girar 10s linear infinite; }
-  .nucleo {
-    position: absolute; inset: 85px; border-radius: 50%;
-    background: radial-gradient(circle, #ffffff 0%, var(--cian) 35%, rgba(63,216,255,0) 75%);
-    box-shadow: 0 0 40px var(--cian), 0 0 90px rgba(63,216,255,0.4);
-    animation: respirar 3s ease-in-out infinite;
-  }
-  @keyframes girar { to { transform: rotate(360deg); } }
-  @keyframes respirar { 50% { transform: scale(0.9); opacity: 0.8; } }
-  @keyframes hablar { 0%,100% { transform: scale(1); } 25% { transform: scale(1.25); } 60% { transform: scale(0.95); } 80% { transform: scale(1.15); } }
-
-  body.pensando .a1 { animation-duration: 0.8s; }
-  body.pensando .a2 { animation-duration: 0.6s; }
-  body.pensando .nucleo { opacity: 0.6; }
-  body.hablando .nucleo { animation: hablar 0.45s ease-in-out infinite; }
-  body.hablando .a3 { animation-duration: 2s; }
-
-  /* ===== Chat ===== */
-  #log { width: min(640px, 92vw); height: 220px; overflow-y: auto; padding: 12px; border: 1px solid rgba(63,216,255,0.25);
-         border-radius: 10px; background: rgba(0,20,30,0.5); font-size: 15px; }
-  .msg { margin: 6px 0; line-height: 1.4; }
-  .yo { color: #9fb8c6; }
-  .jarvis { color: var(--cian); }
-  form { display: flex; gap: 8px; width: min(640px, 92vw); margin: 12px 0 30px; }
-  input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(63,216,255,0.4); background: #031520; color: #fff; font-size: 15px; }
-  button { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--cian); background: transparent; color: var(--cian); cursor: pointer; font-size: 15px; }
-  button:hover { background: rgba(63,216,255,0.15); }
-</style>
-</head>
-<body>
-  <h1>J.A.R.V.I.S.</h1>
-  <div id="estado">En línea</div>
-
-  <div class="orbe">
-    <div class="anillo a1"></div>
-    <div class="anillo a2"></div>
-    <div class="anillo a3"></div>
-    <div class="nucleo"></div>
-  </div>
-
-  <div id="log"></div>
-  <form id="formulario">
-    <input id="entrada" placeholder="Escribile a Jarvis..." autocomplete="off" autofocus>
-    <button type="submit">Enviar</button>
-    <button type="button" id="silencio" title="Activar o desactivar la voz">🔊</button>
-  </form>
-
-<script>
-  const log = document.getElementById("log");
-  const entrada = document.getElementById("entrada");
-  const estado = document.getElementById("estado");
-  const botonSilencio = document.getElementById("silencio");
-  let vozActiva = true;
-  let voz = null;
-
-  // Elige una voz en español instalada en Windows
-  function elegirVoz() {
-    const voces = speechSynthesis.getVoices();
-    voz = voces.find(v => v.lang.startsWith("es") && v.localService)
-       || voces.find(v => v.lang.startsWith("es")) || null;
-  }
-  speechSynthesis.onvoiceschanged = elegirVoz;
-  elegirVoz();
-
-  function ponerEstado(nombre, texto) {
-    document.body.className = nombre;
-    estado.textContent = texto;
-  }
-
-  function agregar(quien, texto) {
-    const div = document.createElement("div");
-    div.className = "msg " + quien;
-    div.textContent = (quien === "yo" ? "Vos: " : "JARVIS: ") + texto;
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
-  }
-
-  function hablar(texto) {
-    if (!vozActiva || !texto) { ponerEstado("", "En línea"); return; }
-    speechSynthesis.cancel();
-    const frase = new SpeechSynthesisUtterance(texto.replace(/[*#_`]/g, ""));
-    if (voz) { frase.voice = voz; frase.lang = voz.lang; } else { frase.lang = "es-ES"; }
-    frase.rate = 1.05;
-    frase.onstart = () => ponerEstado("hablando", "Hablando...");
-    frase.onend = () => ponerEstado("", "En línea");
-    frase.onerror = () => ponerEstado("", "En línea");
-    speechSynthesis.speak(frase);
-  }
-
-  document.getElementById("formulario").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const texto = entrada.value.trim();
-    if (!texto) return;
-    entrada.value = "";
-    agregar("yo", texto);
-    ponerEstado("pensando", "Pensando...");
-    try {
-      const r = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texto })
-      });
-      const datos = await r.json();
-      agregar("jarvis", datos.respuesta);
-      hablar(datos.respuesta);
-    } catch (err) {
-      agregar("jarvis", "Perdí la conexión con el servidor. ¿Sigue abierta la ventana de PowerShell?");
-      ponerEstado("", "Sin conexión");
-    }
-  });
-
-  botonSilencio.addEventListener("click", () => {
-    vozActiva = !vozActiva;
-    botonSilencio.textContent = vozActiva ? "🔊" : "🔇";
-    if (!vozActiva) { speechSynthesis.cancel(); ponerEstado("", "En línea"); }
-  });
-
-  agregar("jarvis", "Sistemas en línea. ¿En qué te ayudo, señor?");
-</script>
-</body>
-</html>
-"""
+@app.route("/chat", methods=["POST"])
+def ruta_chat():
+    texto = (request.json or {}).get("texto", "").strip()
+    if not texto:
+        return jsonify(respuesta="")
+    return jsonify(responder(texto))
 
 
-# ===== ENCENDER =====
+@app.route("/escuchar", methods=["POST"])
+def ruta_escuchar():
+    """Recibe audio del micrófono (16 kHz) y devuelve el texto."""
+    oido_listo.wait(timeout=120)
+    if oido is None:
+        return jsonify(texto="", error="El oído no está disponible.")
+    audio = np.frombuffer(request.get_data(), dtype=np.float32)
+    if audio.size < 16000 * 0.3:
+        return jsonify(texto="")
+    segmentos, _ = oido.transcribe(audio, language="es", beam_size=1, vad_filter=True,
+                                   condition_on_previous_text=False)
+    texto = " ".join(s.text.strip() for s in segmentos).strip()
+    if any(f in sin_acentos(texto) for f in FRASES_FANTASMA) or len(texto) < 2:
+        texto = ""
+    return jsonify(texto=texto)
+
+
+@app.route("/voz", methods=["POST"])
+def ruta_voz():
+    """Convierte texto en audio con la voz de Jarvis."""
+    if voz is None:
+        return Response(status=204)          # la página usa la voz del navegador
+    from piper import SynthesisConfig
+    texto = (request.json or {}).get("texto", "")
+    buffer = io.BytesIO()
+    with wave.open(buffer, "wb") as archivo:
+        voz.synthesize_wav(texto, archivo, syn_config=SynthesisConfig(length_scale=VELOCIDAD_VOZ))
+    buffer.seek(0)
+    return send_file(buffer, mimetype="audio/wav")
+
+
+@app.route("/modulo/<nombre>")
+def ruta_modulo(nombre):
+    try:
+        if nombre == "clima":
+            return jsonify(obtener_clima())
+        if nombre == "proyectos":
+            return jsonify(listar_proyectos())
+        if nombre == "memoria":
+            return jsonify(memoria)
+        if nombre == "sistema":
+            return jsonify(datos_sistema())
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+    return jsonify(error="Módulo desconocido"), 404
+
+
+@app.route("/abrir", methods=["POST"])
+def ruta_abrir():
+    nombre = (request.json or {}).get("nombre", "")
+    return jsonify(ok=abrir_proyecto(nombre))
+
+
+@app.route("/estado")
+def ruta_estado():
+    return jsonify(oido=oido is not None, oido_cargando=not oido_listo.is_set(), voz=voz is not None)
+
+
+# =====================================================================
+# ENCENDER
+# =====================================================================
 if __name__ == "__main__":
-    print("JARVIS encendido. Abrí http://localhost:5000 en el navegador.")
-    print("Para apagarlo: Ctrl + C en esta ventana.")
-    threading.Timer(1.5, lambda: webbrowser.open(f"http://localhost:{PUERTO}")).start()
-    app.run(port=PUERTO)
+    print("=" * 50)
+    print("  J.A.R.V.I.S. encendiendo sistemas...")
+    print(f"  Abrí http://localhost:{PUERTO} en el navegador.")
+    print("  Para apagarlo: Ctrl + C en esta ventana.")
+    print("=" * 50)
+    cargar_voz()
+    threading.Thread(target=cargar_oido, daemon=True).start()
+    try:  # despierta a la mente para que la primera respuesta sea más rápida
+        threading.Thread(target=lambda: ollama.generate(model=MODELO, prompt="", keep_alive="30m"),
+                         daemon=True).start()
+    except Exception:
+        pass
+    threading.Timer(2, lambda: webbrowser.open(f"http://localhost:{PUERTO}")).start()
+    app.run(port=PUERTO, threaded=True)
