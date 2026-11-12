@@ -22,7 +22,8 @@
 
   /* ===== Zona de la esfera ===== */
   #escena { position: relative; flex: 1; min-width: 0; }
-  #lienzo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #lienzo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+  #lienzo.arrastrando { cursor: grabbing; }
   #titulo {
     position: absolute; top: 22px; left: 0; right: 0; text-align: center; pointer-events: none;
     letter-spacing: 0.6em; font-weight: 300; font-size: 22px; color: var(--cian); text-shadow: 0 0 14px var(--cian);
@@ -85,6 +86,9 @@
   .boton:hover { background: rgba(63, 216, 255, 0.12); }
   #llamada { margin-top: 10px; width: 100%; padding: 12px; letter-spacing: 0.15em; }
   #llamada.activa { background: rgba(63, 216, 255, 0.18); box-shadow: 0 0 18px rgba(63, 216, 255, 0.35); }
+  #medidor { height: 4px; margin-top: 8px; border-radius: 2px; background: rgba(63, 216, 255, 0.12); overflow: hidden; }
+  #medidor div { height: 100%; width: 0%; background: var(--cian); transition: width 0.08s; }
+  .abrir-nodo { margin-top: 16px; }
 
   /* ===== Pantalla de inicio ===== */
   #inicio {
@@ -120,6 +124,7 @@
       <button class="boton" type="submit">Enviar</button>
     </form>
     <button class="boton" id="llamada">🎙️ LLAMADA: APAGADA</button>
+    <div id="medidor" title="Volumen de tu micrófono"><div></div></div>
   </aside>
 
 <script>
@@ -181,18 +186,39 @@ for (let i = 0; i < CANTIDAD; i++) {
 }
 
 // Los nodos: cada uno es una "app" de Jarvis. Para agregar más, sumá uno acá.
-const NODOS = [
-  { id: "clima",     nombre: "Clima",     lat: 25,  lon: 20 },
-  { id: "proyectos", nombre: "Proyectos", lat: -28, lon: 110 },
-  { id: "memoria",   nombre: "Memoria",   lat: 38,  lon: 200 },
-  { id: "sistema",   nombre: "Sistema",   lat: -18, lon: 290 },
+// Los fijos están acá; los demás se agregan en el archivo nodos.json
+let NODOS = [
+  { id: "clima",     nombre: "Clima" },
+  { id: "proyectos", nombre: "Proyectos" },
+  { id: "memoria",   nombre: "Memoria" },
+  { id: "sistema",   nombre: "Sistema" },
 ];
-NODOS.forEach(n => {
-  const la = n.lat * Math.PI / 180, lo = n.lon * Math.PI / 180;
-  n.v = [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)];
-});
+
+// Reparte los nodos parejo sobre la esfera, sean 4 o 40
+function ubicarNodos() {
+  const total = NODOS.length;
+  NODOS.forEach((n, i) => {
+    const y = total === 1 ? 0 : 0.8 - (i / (total - 1)) * 1.6;
+    const r = Math.sqrt(1 - y * y);
+    const a = i * Math.PI * (3 - Math.sqrt(5));
+    n.v = [Math.cos(a) * r, y, Math.sin(a) * r];
+    n.fase = i * 1.7;
+  });
+}
+
+async function cargarNodosExtra() {
+  try {
+    const extra = await (await fetch("/nodos")).json();
+    NODOS = NODOS.filter(n => !n.extra).concat(extra.map(e => ({ ...e, id: "nodo:" + e.nombre, extra: true })));
+  } catch {}
+  ubicarNodos();
+}
+ubicarNodos();
 
 let rotY = 0, rotX = 0.3, zoom = 1, tiempo = 0;
+const GIRO_BASE = 0.0015;        // velocidad normal de giro (más alto = más rápido)
+let giroY = GIRO_BASE, giroX = 0; // velocidad actual (cambia cuando la empujás)
+let arrastrando = false;
 let foco = null;                 // nodo enfocado
 let panelAbierto = false;
 
@@ -227,8 +253,15 @@ function dibujar() {
     rotX = acercarAngulo(rotX, Math.atan2(y, h), 0.08);
     zoom += (1.55 - zoom) * 0.07;
   } else {
-    rotY += estado === "pensando" ? 0.02 : 0.004;
-    rotX += (0.3 - rotX) * 0.03;
+    if (!arrastrando) {
+      // Después de empujarla, frena de a poco pero sigue girando para el mismo lado
+      const sentido = giroY >= 0 ? 1 : -1;
+      const objetivo = sentido * (estado === "pensando" ? GIRO_BASE * 6 : GIRO_BASE);
+      giroY += (objetivo - giroY) * 0.02;
+      giroX *= 0.95;
+      rotY += giroY;
+      rotX = Math.max(-1.3, Math.min(1.3, rotX + giroX));
+    }
     zoom += (1 - zoom) * 0.06;
   }
   const radio = radioBase * zoom;
@@ -273,7 +306,7 @@ function dibujar() {
     const [sx, sy, persp] = proyectar([x * 1.04, y * 1.04, z * 1.04], radio);
     n.pantalla = { x: sx, y: sy, adelante: z > -0.1 };
     const alfa = z > 0 ? 1 : 0.25;
-    const pulso = 6 + Math.sin(tiempo * 3 + n.lon) * 1.5;
+    const pulso = 6 + Math.sin(tiempo * 3 + n.fase) * 1.5;
     const tam = pulso * persp * (foco === n ? 1.6 : 1);
     const g = ctx2d.createRadialGradient(sx, sy, 0, sx, sy, tam * 3);
     g.addColorStop(0, `rgba(255,255,255,${alfa})`);
@@ -292,24 +325,55 @@ function dibujar() {
   requestAnimationFrame(dibujar);
 }
 
-// Clic en un nodo
-lienzo.addEventListener("click", (e) => {
+// Tocar o arrastrar la esfera (mouse o dedo)
+function nodoEn(e) {
   const r = lienzo.getBoundingClientRect();
   const mx = e.clientX - r.left, my = e.clientY - r.top;
-  const tocado = NODOS.find(n => n.pantalla && n.pantalla.adelante && Math.hypot(n.pantalla.x - mx, n.pantalla.y - my) < 26);
-  if (tocado) abrirModulo(tocado.id);
+  return NODOS.find(n => n.pantalla && n.pantalla.adelante && Math.hypot(n.pantalla.x - mx, n.pantalla.y - my) < 28);
+}
+
+let inicioX = 0, inicioY = 0, ultimoX = 0, ultimoY = 0, movido = 0;
+lienzo.addEventListener("pointerdown", (e) => {
+  arrastrando = true; movido = 0;
+  inicioX = ultimoX = e.clientX; inicioY = ultimoY = e.clientY;
+  lienzo.setPointerCapture(e.pointerId);
+  lienzo.classList.add("arrastrando");
 });
-lienzo.addEventListener("mousemove", (e) => {
-  const r = lienzo.getBoundingClientRect();
-  const mx = e.clientX - r.left, my = e.clientY - r.top;
-  const encima = NODOS.some(n => n.pantalla && n.pantalla.adelante && Math.hypot(n.pantalla.x - mx, n.pantalla.y - my) < 26);
-  lienzo.style.cursor = encima ? "pointer" : "default";
+lienzo.addEventListener("pointermove", (e) => {
+  if (!arrastrando) {
+    lienzo.style.cursor = nodoEn(e) ? "pointer" : "";
+    return;
+  }
+  const dx = e.clientX - ultimoX, dy = e.clientY - ultimoY;
+  ultimoX = e.clientX; ultimoY = e.clientY;
+  movido = Math.max(movido, Math.hypot(e.clientX - inicioX, e.clientY - inicioY));
+  if (movido < 6) return;
+  if (foco) cerrarPanel();                     // si estaba en un nodo, vuelve a la esfera
+  rotY += dx * 0.007;
+  rotX = Math.max(-1.3, Math.min(1.3, rotX - dy * 0.007));
+  giroY = dx * 0.007;                          // la velocidad con la que la soltás
+  giroX = -dy * 0.007;
 });
+function soltar(e) {
+  if (!arrastrando) return;
+  arrastrando = false;
+  lienzo.classList.remove("arrastrando");
+  if (movido < 6) {                            // fue un toque, no un arrastre
+    const tocado = nodoEn(e);
+    if (tocado) abrirModulo(tocado.id);
+  }
+  giroY = Math.max(-0.08, Math.min(0.08, giroY));
+  giroX = Math.max(-0.05, Math.min(0.05, giroX));
+}
+lienzo.addEventListener("pointerup", soltar);
+lienzo.addEventListener("pointercancel", soltar);
 
 /* =====================================================================
    PANELES (lo que se abre desde cada nodo)
    ===================================================================== */
 async function abrirModulo(id, datos) {
+  const nodoExtra = NODOS.find(n => n.id === id && n.extra);
+  if (nodoExtra) datos = nodoExtra;
   if (!datos) {
     try { datos = await (await fetch("/modulo/" + id)).json(); }
     catch { datos = { error: "Sin conexión con el servidor" }; }
@@ -320,7 +384,7 @@ async function abrirModulo(id, datos) {
   // Espera a que la esfera gire y se acerque al nodo, y después abre el panel
   setTimeout(() => {
     const panel = $("panel");
-    $("contenido").innerHTML = PANELES[id](datos);
+    $("contenido").innerHTML = (PANELES[id] || PANELES.extra)(datos);
     panel.classList.add("abierto");
     panelAbierto = true;
   }, 650);
@@ -368,6 +432,12 @@ const PANELES = {
       ${items ? `<ul class="lista">${items}</ul>` : "<p>No hay recuerdos guardados.</p>"}
       <div class="pista">Decí o escribí "recordá que ..." para guardar algo nuevo.</div>`;
   },
+  extra(n) {
+    return `<h2>${limpiar(n.nombre)}</h2>
+      <div>${limpiar(n.descripcion || "")}</div>
+      <div class="pista">${limpiar(n.abrir)}</div>
+      <button class="boton abrir-nodo" data-nodo="${limpiar(n.nombre)}">Abrir</button>`;
+  },
   sistema(s) {
     return `<h2>Sistema</h2>
       <div class="grande">${limpiar(s.hora)}</div><div>${limpiar(s.fecha)}</div>
@@ -381,6 +451,12 @@ const PANELES = {
 };
 
 $("contenido").addEventListener("click", async (e) => {
+  const nodo = e.target.dataset && e.target.dataset.nodo;
+  if (nodo) {
+    await fetch("/abrir_nodo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nombre: nodo }) });
+    agregar("jarvis", "Abriendo " + nodo + ".");
+    return;
+  }
   const nombre = e.target.dataset && e.target.dataset.abrir;
   if (!nombre) return;
   await fetch("/abrir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nombre }) });
@@ -422,10 +498,12 @@ $("formulario").addEventListener("submit", (e) => {
 /* =====================================================================
    VOZ DE JARVIS
    ===================================================================== */
-const TONO = 0.93;   // menos de 1 = voz más grave
+const TONO = 1;      // menos de 1 = voz más grave (y más lenta)
+let motorVoz = "piper";
 
 async function hablar(texto, miTurno) {
   if (!texto) { estadoReposo(); return; }
+  if (motorVoz === "natural") { hablarNavegador(texto); return; }
   try {
     const r = await fetch("/voz", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto })
@@ -451,11 +529,15 @@ async function hablar(texto, miTurno) {
 // Plan B: voz del navegador si Piper no está instalado
 function hablarNavegador(texto) {
   const voces = speechSynthesis.getVoices().filter(v => v.lang.startsWith("es"));
-  const hombre = voces.find(v => /raul|pablo|jorge|alvaro|tomas|diego|male|hombre/i.test(v.name));
+  const HOMBRES = /jorge|tomas|gerardo|alvaro|gonzalo|lorenzo|mateo|raul|pablo|diego|male|hombre/i;
+  const naturales = voces.filter(v => /natural/i.test(v.name));
+  const elegida = naturales.find(v => HOMBRES.test(v.name)) || naturales[0]
+               || voces.find(v => HOMBRES.test(v.name)) || voces[0] || null;
   const frase = new SpeechSynthesisUtterance(texto);
-  frase.voice = hombre || voces[0] || null;
-  frase.lang = frase.voice ? frase.voice.lang : "es-ES";
-  frase.pitch = 0.8; frase.rate = 1;
+  frase.voice = elegida;
+  frase.lang = elegida ? elegida.lang : "es-ES";
+  frase.pitch = naturales.length ? 0.95 : 0.85;
+  frase.rate = 1.05;
   frase.onstart = () => ponerEstado("hablando");
   frase.onend = frase.onerror = () => estadoReposo();
   speechSynthesis.speak(frase);
@@ -509,6 +591,21 @@ async function activarLlamada() {
   $("llamada").classList.add("activa");
   $("llamada").textContent = "🎙️ LLAMADA: ACTIVA";
   if (estado === "espera") ponerEstado("escuchando");
+  revisarOido();
+}
+
+// Avisa si el oído (Whisper) todavía se está descargando o si falló
+async function revisarOido() {
+  try {
+    const s = await (await fetch("/estado")).json();
+    if (s.oido_error) { agregar("aviso", "El oído no pudo cargarse: " + s.oido_error); return; }
+    if (s.oido_cargando) {
+      ponerEstado("escuchando", "Cargando oído... (la primera vez tarda)");
+      setTimeout(revisarOido, 4000);
+      return;
+    }
+    if (llamadaActiva && estado === "escuchando") ponerEstado("escuchando");
+  } catch {}
 }
 
 function desactivarLlamada() {
@@ -519,6 +616,7 @@ function desactivarLlamada() {
   procesador = microfono = ctxMic = null;
   grabando = false; trozos = [];
   nivelMic = 0;
+  medidor.style.width = "0%";
   $("llamada").classList.remove("activa");
   $("llamada").textContent = "🎙️ LLAMADA: APAGADA";
   if (estado === "escuchando") ponerEstado("espera");
@@ -527,6 +625,7 @@ function desactivarLlamada() {
 $("llamada").addEventListener("click", () => llamadaActiva ? desactivarLlamada() : activarLlamada());
 
 // Detector de voz: decide cuándo empezaste y cuándo terminaste de hablar
+const medidor = document.querySelector("#medidor div");
 let grabando = false, trozos = [], previos = [];
 let ruidoFondo = 0.01, msVoz = 0, msSilencio = 0, seguidos = 0;
 
@@ -537,9 +636,10 @@ function detectarVoz(muestras, frecuencia) {
   for (const m of copia) suma += m * m;
   const rms = Math.sqrt(suma / copia.length);
   nivelMic = Math.min(1, rms * 12);
+  medidor.style.width = Math.round(Math.min(1, rms * 20) * 100) + "%";
 
   // Si Jarvis está hablando, pide más volumen para no confundirse con su propia voz
-  let umbral = Math.max(0.012, ruidoFondo * 3);
+  let umbral = Math.max(0.008, ruidoFondo * 2.5);
   if (jarvisHablando()) umbral *= 2.5;
 
   if (!grabando) {
@@ -615,16 +715,20 @@ $("botonInicio").addEventListener("click", async () => {
   medirVoz();
   const saludo = "Sistemas en línea. Bienvenido, señor.";
   agregar("jarvis", saludo);
-  hablar(saludo, turno);
   try {
     const s = await (await fetch("/estado")).json();
-    if (!s.voz) agregar("aviso", "Voz de Jarvis no instalada: uso la voz del navegador.");
+    motorVoz = s.motor_voz;
+    if (s.motor_voz === "piper" && !s.voz) agregar("aviso", "Voz de Jarvis no instalada: uso la voz del navegador.");
     if (s.oido_cargando) agregar("aviso", "El oído (Whisper) se está cargando. La primera vez tarda unos minutos.");
+    if (s.oido_error) agregar("aviso", "El oído no pudo cargarse: " + s.oido_error);
   } catch {}
+  hablar(saludo, turno);
   $("entrada").focus();
 });
 
 ajustarTamano();
+cargarNodosExtra();
+speechSynthesis.getVoices();
 dibujar();
 </script>
 </body>

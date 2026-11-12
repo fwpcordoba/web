@@ -17,6 +17,13 @@ import wave
 import webbrowser
 from datetime import datetime
 
+# Hace que Python use los certificados de Windows (evita errores al descargar o al pedir el clima)
+try:
+    import truststore
+    truststore.inject_into_ssl()
+except Exception:
+    pass
+
 import numpy as np
 import ollama
 from flask import Flask, Response, jsonify, request, send_file
@@ -27,11 +34,13 @@ from flask import Flask, Response, jsonify, request, send_file
 CARPETA = os.path.dirname(os.path.abspath(__file__))
 MODELO = "llama3.2"                      # la mente de Jarvis
 ARCHIVO_MEMORIA = os.path.join(CARPETA, "memoria.json")
+ARCHIVO_NODOS = os.path.join(CARPETA, "nodos.json")
 CARPETA_PROYECTOS = os.path.join(CARPETA, "proyectos")
 CIUDAD = "Córdoba"                       # para el clima
 PAIS = "AR"                              # código del país de la ciudad
+MOTOR_VOZ = "piper"                      # "piper" = sin internet | "natural" = voz de Microsoft Edge (más humana, usa internet)
 VOZ = "es_MX-ald-medium"                 # voz de Piper (hombre, latino)
-VELOCIDAD_VOZ = 1.1                      # más alto = habla más lento
+VELOCIDAD_VOZ = 0.85                     # más bajo = habla más rápido (1 = normal)
 MODELO_OIDO = "small"                    # Whisper: "base" es más rápido, "small" entiende mejor
 PUERTO = 5000
 
@@ -56,6 +65,40 @@ def guardar_memoria(datos):
 memoria = cargar_memoria()
 historial = []
 os.makedirs(CARPETA_PROYECTOS, exist_ok=True)
+
+
+# =====================================================================
+# NODOS EXTRA (los puntos que agregás vos en nodos.json)
+# =====================================================================
+NODOS_DE_EJEMPLO = [
+    {"nombre": "YouTube", "abrir": "https://www.youtube.com", "descripcion": "Videos y música"},
+    {"nombre": "WhatsApp", "abrir": "https://web.whatsapp.com", "descripcion": "Mensajes con clientes"},
+    {"nombre": "Mercado Libre", "abrir": "https://www.mercadolibre.com.ar", "descripcion": "Ventas y publicaciones"},
+    {"nombre": "Gmail", "abrir": "https://mail.google.com", "descripcion": "Correo"},
+]
+
+
+def cargar_nodos():
+    if not os.path.exists(ARCHIVO_NODOS):
+        with open(ARCHIVO_NODOS, "w", encoding="utf-8") as f:
+            json.dump(NODOS_DE_EJEMPLO, f, ensure_ascii=False, indent=2)
+    try:
+        with open(ARCHIVO_NODOS, "r", encoding="utf-8") as f:
+            return [n for n in json.load(f) if n.get("nombre") and n.get("abrir")]
+    except Exception as e:
+        print("[Nodos] Hay un error en nodos.json:", e)
+        return []
+
+
+def abrir_nodo(nodo):
+    destino = nodo["abrir"]
+    if destino.startswith("http"):
+        webbrowser.open(destino)
+    elif hasattr(os, "startfile") and os.path.exists(destino):
+        os.startfile(destino)
+    else:
+        return False
+    return True
 
 
 def sin_acentos(texto):
@@ -88,6 +131,7 @@ def instrucciones():
 # OÍDO: Whisper (convierte tu voz en texto, sin internet)
 # =====================================================================
 oido = None
+oido_error = ""
 oido_listo = threading.Event()
 
 # Frases que Whisper a veces "inventa" cuando hay silencio
@@ -95,13 +139,14 @@ FRASES_FANTASMA = ["amara.org", "subtitulos", "gracias por ver", "suscribete", "
 
 
 def cargar_oido():
-    global oido
+    global oido, oido_error
     try:
         from faster_whisper import WhisperModel
         print(f"[Oído] Cargando Whisper '{MODELO_OIDO}' (la primera vez se descarga, puede tardar)...")
         oido = WhisperModel(MODELO_OIDO, device="cpu", compute_type="int8")
         print("[Oído] Listo.")
     except Exception as e:
+        oido_error = str(e)
         print("[Oído] No se pudo cargar Whisper:", e)
     oido_listo.set()
 
@@ -114,6 +159,9 @@ voz = None
 
 def cargar_voz():
     global voz
+    if MOTOR_VOZ != "piper":
+        print("[Voz] Usando la voz natural del navegador (abrí Jarvis en Microsoft Edge).")
+        return
     try:
         from piper import PiperVoice
         modelo = os.path.join(CARPETA, "voces", VOZ + ".onnx")
@@ -267,6 +315,16 @@ def responder(texto):
                     "panel": "proyectos", "datos": lista}
         return {"respuesta": f"Tiene {len(lista)} proyectos. ¿Cuál abro?", "panel": "proyectos", "datos": lista}
 
+    if re.search(r"\b(abri|abrir|abrime|anda a|entra a|pone)\b", t):
+        nodos = cargar_nodos()
+        nombres = [sin_acentos(n["nombre"]) for n in nodos]
+        resto = re.sub(r".*\b(abri|abrir|abrime|anda a|entra a|pone)\b\s*(el |la |los |las )?", "", t).strip()
+        parecidos = difflib.get_close_matches(resto, nombres, n=1, cutoff=0.5)
+        if parecidos:
+            nodo = nodos[nombres.index(parecidos[0])]
+            abrir_nodo(nodo)
+            return {"respuesta": f"Abriendo {nodo['nombre']}, señor.", "panel": "nodo:" + nodo["nombre"], "datos": nodo}
+
     if re.search(r"\b(cerra|cerrar|volve|volver)\b", t) and len(t.split()) <= 4:
         return {"respuesta": "Listo.", "panel": "cerrar"}
 
@@ -348,6 +406,20 @@ def ruta_modulo(nombre):
     return jsonify(error="Módulo desconocido"), 404
 
 
+@app.route("/nodos")
+def ruta_nodos():
+    return jsonify(cargar_nodos())
+
+
+@app.route("/abrir_nodo", methods=["POST"])
+def ruta_abrir_nodo():
+    nombre = (request.json or {}).get("nombre", "")
+    for nodo in cargar_nodos():
+        if nodo["nombre"] == nombre:
+            return jsonify(ok=abrir_nodo(nodo))
+    return jsonify(ok=False)
+
+
 @app.route("/abrir", methods=["POST"])
 def ruta_abrir():
     nombre = (request.json or {}).get("nombre", "")
@@ -356,7 +428,8 @@ def ruta_abrir():
 
 @app.route("/estado")
 def ruta_estado():
-    return jsonify(oido=oido is not None, oido_cargando=not oido_listo.is_set(), voz=voz is not None)
+    return jsonify(oido=oido is not None, oido_cargando=not oido_listo.is_set(), oido_error=oido_error,
+                   voz=voz is not None, motor_voz=MOTOR_VOZ)
 
 
 # =====================================================================
@@ -369,6 +442,7 @@ if __name__ == "__main__":
     print("  Para apagarlo: Ctrl + C en esta ventana.")
     print("=" * 50)
     cargar_voz()
+    cargar_nodos()
     threading.Thread(target=cargar_oido, daemon=True).start()
     try:  # despierta a la mente para que la primera respuesta sea más rápida
         threading.Thread(target=lambda: ollama.generate(model=MODELO, prompt="", keep_alive="30m"),
